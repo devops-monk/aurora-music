@@ -4,8 +4,8 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Aurora Music: every song, in its best light</title>
-  <meta name="description" content="A free, open-source YouTube Music player for macOS, Windows and Linux, with an Apple Music-style design, word-synced lyrics, crossfade, an equaliser, offline downloads and Listen Together." />
-  <meta name="theme-color" content="#07091a" />
+  <meta name="description" content="A free, open-source YouTube Music player for macOS, Windows and Linux: word-synced lyrics with translation, animated cover art, crossfade, an equaliser, offline downloads, Replay and Listen Together." />
+  <meta name="theme-color" content="#3a2527" />
   <meta property="og:title" content="Aurora Music" />
   <meta property="og:description" content="The YouTube Music player your desktop deserves. Free, open source, no ads." />
   <meta property="og:image" content="https://aurora.devops-monk.com/assets/shots/nowplaying.webp" />
@@ -13,285 +13,185 @@
   <meta name="twitter:card" content="summary_large_image" />
   <link rel="icon" type="image/png" sizes="32x32" href="/assets/favicon-32.png" />
   <link rel="apple-touch-icon" href="/assets/icon-512.png" />
+  <link rel="preload" href="/assets/fonts/schibsted-800.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="preload" href="/assets/fonts/inter.woff2" as="font" type="font/woff2" crossorigin />
   <link rel="stylesheet" href="/styles.css" />
 </head>
 <body>
-  <div class="sky" aria-hidden="true"><i></i><i></i><i></i></div>
+  <a class="skip" href="#main">Skip to content</a>
 
   <header class="nav">
-    <a class="brand" href="#top">
-      <img src="/assets/logo.svg" alt="" width="30" height="30" />
+    <a class="brand" href="#top" aria-label="Aurora Music, back to top">
+      <img src="/assets/logo.svg" alt="" width="28" height="28" />
       <span>Aurora Music</span>
     </a>
-    <nav class="nav-links">
+    <nav class="nav-links" aria-label="Sections">
+      <a href="#lyrics">Lyrics</a>
+      <a href="#tour">Screens</a>
       <a href="#features">Features</a>
-      <a href="#together">Listen Together</a>
-      <a href="#releases">Releases</a>
       <a href="#install">Install</a>
     </nav>
-    <a class="btn btn-small btn-glass" href="https://github.com/devops-monk/aurora-music" target="_blank" rel="noopener">
+    <a class="nav-github" href="https://github.com/devops-monk/aurora-music" target="_blank" rel="noopener">
       <svg width="16" height="16" viewBox="0 0 16 16" fill="currentColor" aria-hidden="true"><path d="M8 0C3.58 0 0 3.58 0 8c0 3.54 2.29 6.53 5.47 7.59.4.07.55-.17.55-.38v-1.33c-2.23.48-2.7-1.07-2.7-1.07-.36-.92-.89-1.17-.89-1.17-.73-.5.06-.49.06-.49.8.06 1.23.83 1.23.83.72 1.22 1.87.87 2.33.66.07-.52.28-.87.5-1.07-1.78-.2-3.64-.89-3.64-3.95 0-.87.31-1.59.82-2.15-.08-.2-.36-1.02.08-2.12 0 0 .67-.21 2.2.82a7.6 7.6 0 0 1 4 0c1.53-1.04 2.2-.82 2.2-.82.44 1.1.16 1.92.08 2.12.51.56.82 1.27.82 2.15 0 3.07-1.87 3.75-3.65 3.95.29.25.54.73.54 1.48v2.2c0 .21.15.46.55.38A8.01 8.01 0 0 0 16 8c0-4.42-3.58-8-8-8Z"/></svg>
       <span>GitHub</span>
       <b class="stars" data-stars hidden></b>
     </a>
   </header>
 
-  <main id="top">
-    <!-- ── Hero ─────────────────────────────────────────────────────────── -->
-    <section class="hero">
-      <a class="pill-badge" href="#releases"><span class="dot"></span><span data-latest>v1.0.0</span> released: macOS · Windows · Linux</a>
-      <h1>Every song,<br /><span class="aurora-text">in its best light.</span></h1>
-      <p class="lede">The YouTube Music player your desktop deserves, with the calm, glassy design of Apple Music. Word-synced lyrics, crossfade, an equaliser, offline downloads and Listen Together. Free and open source, with no ads.</p>
-      <div class="cta">
-        <a class="btn btn-primary" data-download href="#install">
-          <span class="os-icon" data-os-icon></span>
-          <span data-download-label>Download Aurora Music</span>
-        </a>
-        <a class="btn btn-glass" href="#install">All platforms</a>
-      </div>
-      <p class="fine">No account needed · Sign in with Google for your library · GPL-3.0</p>
-
-      <ul class="platforms">
-        <li><b>macOS</b><span>Universal · 11+</span><em>Available</em></li>
-        <li><b>Windows</b><span>x64 · ARM64 · 10+</span><em>Available</em></li>
-        <li><b>Linux</b><span>AppImage · deb · rpm</span><em>Available</em></li>
-      </ul>
-
-      <figure class="hero-shot">
-        <div class="window">
-          <div class="window-bar"><i></i><i></i><i></i></div>
-          <img src="/assets/shots/nowplaying.webp" alt="Aurora Music's Now Playing screen with album artwork and playback controls" width="1600" height="1025" fetchpriority="high" />
+  <main id="main">
+    <!-- Hero: the tagline sung as synced lyrics, beside the real Now Playing screen. -->
+    <section class="hero" id="top" data-tint="#3a2527" style="--glow: url(/assets/shots/nowplaying.webp)">
+      <div class="hero-copy">
+        <h1 class="sr-only">Every song, in its best light.</h1>
+        <div class="sung" data-sung aria-hidden="true">
+          <p>Every song,</p>
+          <p>in its best light.</p>
+          <p>Lyrics in time,</p>
+          <p>covers in motion,</p>
+          <p>and not one ad.</p>
         </div>
+        <p class="lede">A YouTube Music player for your Mac, Windows or Linux desktop, with the calm design of Apple Music. Free and open source.</p>
+        <div class="cta">
+          <a class="btn btn-play" data-download href="#install">
+            <span class="os-icon" data-os-icon></span>
+            <span data-download-label>Download Aurora Music</span>
+          </a>
+          <a class="btn-quiet" href="#install">Other platforms</a>
+        </div>
+        <p class="fine"><span data-latest>v1.0.0</span> for macOS, Windows and Linux. No account needed.</p>
+      </div>
+      <figure class="hero-shot">
+        <img src="/assets/shots/nowplaying.webp" alt="Aurora Music playing Anti-Hero by Taylor Swift, with the Midnights cover, progress bar and playback controls" width="1600" height="1025" fetchpriority="high" />
       </figure>
     </section>
 
-    <!-- ── Numbers that are true ───────────────────────────────────────── -->
-    <section class="stats">
-      <div class="stat"><b>3</b><span>desktop platforms</span><small>one identical interface</small></div>
-      <div class="stat"><b>8</b><span>installer formats</span><small>dmg · zip · exe · portable · AppImage · deb · rpm</small></div>
-      <div class="stat"><b>16</b><span>equaliser presets</span><small>7 bands, ±12 dB</small></div>
-      <div class="stat"><b>100%</b><span>free</span><small>no ads · no tracking · GPL-3.0</small></div>
+    <!-- Lyrics and translation, with a real toggle between the two screenshots. -->
+    <section class="story" id="lyrics" data-tint="#2f3826" style="--glow: url(/assets/shots/translate.webp)">
+      <div class="story-copy">
+        <h2>Lyrics that keep time</h2>
+        <p>Each word lights up as it's sung, so you can follow along or sing over the top. Click any line to jump to it.</p>
+        <p>Singing in a language you don't speak? Press Translate and every line gets its meaning underneath, in any of 31 languages.</p>
+        <div class="toggle" role="group" aria-label="Lyrics view" data-lyric-toggle>
+          <button type="button" aria-pressed="false" data-src="/assets/shots/lyrics.webp" data-alt="Synced lyrics for The Fate of Ophelia, the current line highlighted">Original</button>
+          <button type="button" aria-pressed="true" data-src="/assets/shots/translate.webp" data-alt="The same lyrics with a Hindi translation beneath each line">हिन्दी</button>
+        </div>
+      </div>
+      <figure class="story-shot">
+        <img data-lyric-img src="/assets/shots/translate.webp" alt="The same lyrics with a Hindi translation beneath each line" width="1600" height="1025" loading="lazy" />
+      </figure>
     </section>
 
-    <!-- ── Screens ─────────────────────────────────────────────────────── -->
-    <section class="screens" aria-label="Screenshots">
-      <div class="section-head">
-        <p class="eyebrow">A closer look</p>
-        <h2>Designed like it belongs on your desktop</h2>
-        <p>Frosted glass, artwork-tinted pages, and a floating tab bar with the mini player riding along. These are real screenshots of the current build.</p>
+    <!-- Animated covers. -->
+    <section class="story story-flip" id="covers" data-tint="#173f1f" style="--glow: url(/assets/shots/album-x.webp)">
+      <div class="story-copy">
+        <h2>Covers that move</h2>
+        <p>Albums that have motion artwork on Apple Music play it right in the sleeve, on album pages and while the song plays. Everything else keeps its still cover.</p>
+        <p>Each page takes its colour from the artwork, so no two albums look the same.</p>
       </div>
-      <div class="tabs" role="tablist">
-        <button role="tab" aria-selected="true" data-shot="nowplaying">Now Playing</button>
-        <button role="tab" data-shot="lyrics">Lyrics</button>
-        <button role="tab" data-shot="album">Album</button>
-        <button role="tab" data-shot="home">Home</button>
-        <button role="tab" data-shot="explore">Explore</button>
-        <button role="tab" data-shot="eq">Equalizer</button>
-      </div>
-      <div class="window shot-frame">
-        <div class="window-bar"><i></i><i></i><i></i></div>
-        <img data-shot-img src="/assets/shots/nowplaying.webp" alt="Aurora Music screenshot" width="1600" height="1025" loading="lazy" />
-      </div>
+      <figure class="story-shot">
+        <img src="/assets/shots/album-x.webp" alt="The album page for x by Ed Sheeran, tinted green from its cover" width="1600" height="1025" loading="lazy" />
+      </figure>
     </section>
 
-    <!-- ── Engine room ─────────────────────────────────────────────────── -->
-    <section id="features" class="features">
-      <div class="section-head">
-        <p class="eyebrow">The engine room</p>
-        <h2>Built for people who actually listen</h2>
-        <p>Everything below ships in the current build. The cards are live, so try them.</p>
+    <!-- A shelf of screens, scrolled sideways the way the app's own shelves are. -->
+    <section class="tour" id="tour" data-tint="#221d2b">
+      <div class="tour-head">
+        <h2>Have a look around</h2>
+        <div class="tour-arrows">
+          <button type="button" aria-label="Previous screens" data-tour-prev><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m15 18-6-6 6-6"/></svg></button>
+          <button type="button" aria-label="Next screens" data-tour-next><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="m9 18 6-6-6-6"/></svg></button>
+        </div>
       </div>
-
-      <div class="grid">
-        <!-- Lyrics -->
-        <article class="card card-wide">
-          <div class="card-copy">
-            <p class="eyebrow">Word-synced lyrics</p>
-            <h3>Lyrics that breathe with the song</h3>
-            <p>Apple Music-style lyrics with word-level timing from BetterLyrics, LRCLIB and YouTube Music. Words fill as they're sung, distant lines soften, and duets split left and right. Click any line to jump to it.</p>
-          </div>
-          <div class="demo lyrics-demo" data-lyrics>
-            <p data-t="0"><span>Hold</span> <span>the</span> <span>line</span> <span>a</span> <span>little</span> <span>longer</span></p>
-            <p data-t="1"><span>every</span> <span>echo</span> <span>coming</span> <span>back</span> <span>stronger</span></p>
-            <p data-t="2" class="bg"><span>(coming</span> <span>back)</span></p>
-            <p data-t="3"><span>and</span> <span>the</span> <span>room</span> <span>goes</span> <span>quiet</span></p>
-            <p data-t="4"><span>sung</span> <span>in</span> <span>full</span> <span>colour</span></p>
-          </div>
-        </article>
-
-        <!-- Crossfade -->
-        <article class="card">
-          <p class="eyebrow">Crossfade & gapless</p>
-          <h3>Songs that hand over, not stop</h3>
-          <p>The next track is already buffered before this one ends. Set a crossfade and the two overlap on equal-power curves, so the level never dips.</p>
-          <div class="demo">
-            <svg class="fade-svg" viewBox="0 0 300 110" preserveAspectRatio="none" data-fade>
-              <path class="fade-out" d="" />
-              <path class="fade-in" d="" />
-              <line class="fade-head" x1="0" y1="0" x2="0" y2="110" />
-            </svg>
-            <label class="slider-row">
-              <span>Crossfade</span>
-              <input type="range" min="0" max="12" value="6" data-fade-range />
-              <output data-fade-out>6s</output>
-            </label>
-          </div>
-        </article>
-
-        <!-- EQ -->
-        <article class="card">
-          <p class="eyebrow">Equaliser</p>
-          <h3>Seven bands, sixteen presets</h3>
-          <p>Seven bands from 60 Hz to 14 kHz, with automatic headroom so boosts never clip. The curve you see is the curve you hear.</p>
-          <div class="demo">
-            <svg class="eq-svg" viewBox="0 0 300 100" preserveAspectRatio="none"><path data-eq-fill class="eq-fill" d="" /><path data-eq-line class="eq-line" d="" /></svg>
-            <div class="chips" data-eq-presets></div>
-          </div>
-        </article>
-
-        <!-- Listen Together -->
-        <article class="card card-wide" id="together">
-          <div class="card-copy">
-            <p class="eyebrow">Listen Together</p>
-            <h3>One song, every device, the same second</h3>
-            <p>Start a party, share the six-character code, and up to five people hear the same thing in sync. Devices measure their clock offset like NTP and each computes where it should be, so a slow network can't pull anyone off the beat. It speaks BitChord's party protocol, so Android friends can join too.</p>
-          </div>
-          <div class="demo party-demo">
-            <div class="party-code"><span>Party code</span><b data-party-code>AUR0RA</b></div>
-            <ul class="party-devices" data-party>
-              <li><span class="avatar a1">M</span><span class="dev">MacBook</span><i class="bar"><em></em></i></li>
-              <li><span class="avatar a2">W</span><span class="dev">Windows PC</span><i class="bar"><em></em></i></li>
-              <li><span class="avatar a3">A</span><span class="dev">Android phone</span><i class="bar"><em></em></i></li>
-            </ul>
-            <p class="party-foot"><span class="dot"></span> in sync · <span data-drift>±12 ms</span></p>
-          </div>
-        </article>
-
-        <!-- Offline -->
-        <article class="card">
-          <p class="eyebrow">Offline & local</p>
-          <h3>Your music, even without Wi-Fi</h3>
-          <p>Download any song with its cover to <code>~/Music/Aurora Music</code>. Add your own folders of MP3, AAC, FLAC, Opus or WAV, and they play right alongside everything else.</p>
-          <div class="demo offline-demo">
-            <div class="dl"><span class="ring" data-ring></span><div><b>Get Lucky</b><small data-ring-text>Downloading · 0%</small></div></div>
-            <div class="dl done"><span class="ring full"></span><div><b>Instant Crush</b><small>Downloaded</small></div></div>
-            <div class="dl done"><span class="ring folder"></span><div><b>~/Music/FLAC</b><small>412 local songs</small></div></div>
-          </div>
-        </article>
-
-        <!-- Ecosystem -->
-        <article class="card">
-          <p class="eyebrow">Ecosystem</p>
-          <h3>Your taste, everywhere</h3>
-          <p>Your Discord status shows what you're playing, using Discord's official RPC. Plays scrobble to Last.fm and ListenBrainz once you've actually heard them.</p>
-          <div class="demo eco-demo">
-            <div class="discord">
-              <small>LISTENING TO AURORA MUSIC</small>
-              <div class="discord-row">
-                <span class="discord-art"></span>
-                <div><b>Get Lucky</b><span>Daft Punk</span><i class="bar"><em></em></i></div>
-              </div>
-            </div>
-            <ul class="eco-list">
-              <li><b>Last.fm</b><span class="ok">scrobbled</span></li>
-              <li><b>ListenBrainz</b><span class="ok">submitted</span></li>
-            </ul>
-          </div>
-        </article>
-      </div>
-
-      <ul class="more">
-        <li>Media keys & OS now-playing</li>
-        <li>Radio autoplay</li>
-        <li>Volume normalisation</li>
-        <li>Drag-to-reorder queue</li>
-        <li>Dark, light & system themes</li>
-        <li>Keyboard shortcuts</li>
-        <li>Session in your OS keychain</li>
+      <ul class="shelf" data-tour tabindex="0" aria-label="Screenshots">
+        <li><img src="/assets/shots/home.webp" alt="Home with quick picks and playlists" width="1600" height="1025" loading="lazy" /><b>Home</b><span>Quick picks and mixes, personalised once you sign in</span></li>
+        <li><img src="/assets/shots/explore.webp" alt="Explore with new albums and singles" width="1600" height="1025" loading="lazy" /><b>Explore</b><span>New releases, charts and music videos</span></li>
+        <li><img src="/assets/shots/moods.webp" alt="The moods and genres grid" width="1600" height="1025" loading="lazy" /><b>Moods & genres</b><span>From Chill to Workout, and 26 genres</span></li>
+        <li><img src="/assets/shots/mood.webp" alt="The Chill mood page full of playlists" width="1600" height="1025" loading="lazy" /><b>Chill</b><span>One tap from a mood to a page of playlists</span></li>
+        <li><img src="/assets/shots/search.webp" alt="Search results for Taylor Swift" width="1600" height="1025" loading="lazy" /><b>Search</b><span>Songs, albums, artists, videos and playlists</span></li>
+        <li><img src="/assets/shots/replay.webp" alt="Replay, a summary of the month's listening" width="1600" height="1025" loading="lazy" /><b>Replay</b><span>Your month in music, as a poster you can share</span></li>
+        <li><img src="/assets/shots/eq.webp" alt="The seven-band equaliser" width="1600" height="1025" loading="lazy" /><b>Equaliser</b><span>Seven bands and sixteen presets</span></li>
+        <li><img src="/assets/shots/settings.webp" alt="Settings for appearance and playback" width="1600" height="1025" loading="lazy" /><b>Settings</b><span>Themes, audio quality, crossfade and more</span></li>
       </ul>
     </section>
 
-    <!-- ── Releases ────────────────────────────────────────────────────── -->
-    <section id="releases" class="releases">
-      <div class="section-head">
-        <p class="eyebrow">Release stream</p>
-        <h2>Shipped, not promised</h2>
-        <p data-releases-sub>Every build, pulled live from GitHub Releases.</p>
-      </div>
-      <div class="release-list" data-releases>
-        <article class="release latest">
-          <header><b>v1.0.0</b><span class="tag">latest</span><time>September 2026</time></header>
-          <h3>Aurora Music 1.0</h3>
-          <ul>
-            <li>Home, Explore, Search and Library, with album, playlist and artist pages tinted from their artwork</li>
-            <li>Now Playing with an animated artwork backdrop, and Apple-style word-synced lyrics</li>
-            <li>Gapless playback, crossfade, a 7-band equaliser, offline downloads and Local Music</li>
-            <li>Listen Together, Discord status, and Last.fm / ListenBrainz scrobbling</li>
-            <li>Monthly Replay, lyrics translation, and animated cover art</li>
-          </ul>
-        </article>
-      </div>
+    <!-- The rest, as a plain list. -->
+    <section class="features" id="features" data-tint="#221d2b">
+      <h2>And the rest of it</h2>
+      <dl class="feature-list">
+        <div><dt>Crossfade and gapless</dt><dd>The next song is ready before this one ends. Add up to 12 seconds of crossfade and they blend without a dip in volume.</dd></div>
+        <div><dt>Listen Together</dt><dd>Start a party, share the code, and up to five people hear the same song at the same second. Android friends on BitChord can join too.</dd></div>
+        <div><dt>Downloads and your own files</dt><dd>Save songs with their covers for offline listening, or add folders of MP3, FLAC, AAC, Opus or WAV and play them alongside everything else.</dd></div>
+        <div><dt>Replay</dt><dd>Minutes listened, top songs, artists and albums each month, counted on your computer and nowhere else.</dd></div>
+        <div><dt>Discord and scrobbling</dt><dd>Show what you're playing on Discord, and scrobble to Last.fm or ListenBrainz once you've actually heard the song.</dd></div>
+        <div><dt>Feels at home</dt><dd>Media keys, your system's now-playing controls, light and dark themes, volume normalising and radio that keeps going when your queue ends.</dd></div>
+      </dl>
     </section>
 
-    <!-- ── Install ─────────────────────────────────────────────────────── -->
-    <section id="install" class="install">
-      <div class="section-head">
-        <p class="eyebrow">Install</p>
-        <h2>Three steps, about a minute</h2>
-        <p>Pick your system. Builds aren't code-signed yet, so each OS asks you to confirm once.</p>
-      </div>
-      <div class="tabs" role="tablist" data-os-tabs>
+    <!-- Install: three steps per system, then the live release list. -->
+    <section class="install" id="install" data-tint="#3a2527">
+      <h2>Install in a minute</h2>
+      <p class="install-sub">The builds aren't code-signed yet, so your system asks you to confirm once.</p>
+      <div class="os-tabs" role="tablist" aria-label="Operating system" data-os-tabs>
         <button role="tab" data-os="mac" aria-selected="true">macOS</button>
-        <button role="tab" data-os="win">Windows</button>
-        <button role="tab" data-os="linux">Linux</button>
+        <button role="tab" data-os="win" aria-selected="false">Windows</button>
+        <button role="tab" data-os="linux" aria-selected="false">Linux</button>
       </div>
 
-      <div class="steps" data-os-panel="mac">
-        <div class="step"><b>01</b><h3>Download the .dmg</h3><p>One universal build runs natively on Apple silicon and Intel Macs.</p><a class="btn btn-primary btn-small" data-asset="mac-universal.dmg" href="#">Download for macOS</a></div>
-        <div class="step"><b>02</b><h3>Drag to Applications</h3><p>Open the disk image and drop Aurora Music into your Applications folder.</p></div>
-        <div class="step"><b>03</b><h3>Open it once</h3><p>The first time, right-click the app and choose <em>Open</em>, then <em>Open</em> again. After that it launches normally.</p></div>
+      <ol class="steps" data-os-panel="mac">
+        <li><h3>Download the disk image</h3><p>One universal build, native on Apple silicon and Intel Macs.</p><a class="btn btn-play btn-small" data-asset="mac-universal.dmg" href="#">Download for macOS</a></li>
+        <li><h3>Drag it to Applications</h3><p>Open the disk image and drop Aurora Music into your Applications folder.</p></li>
+        <li><h3>Open it once</h3><p>The first time, right-click the app and choose <em>Open</em>, then <em>Open</em> again. After that it opens normally.</p></li>
+      </ol>
+      <ol class="steps" data-os-panel="win" hidden>
+        <li><h3>Download the installer</h3><p>One installer for x64 and ARM64 PCs. Rather not install? Get the <a data-asset="win-portable.exe" href="#">portable version</a>.</p><a class="btn btn-play btn-small" data-asset="win-x64.exe" href="#">Download for Windows</a></li>
+        <li><h3>Get past SmartScreen</h3><p>Windows warns about new apps. Click <em>More info</em>, then <em>Run anyway</em>.</p></li>
+        <li><h3>Press play</h3><p>Aurora Music is in the Start menu, and your media keys control it.</p></li>
+      </ol>
+      <ol class="steps" data-os-panel="linux" hidden>
+        <li><h3>Pick a package</h3><p>The AppImage runs anywhere. There's also a .deb for Debian and Ubuntu, and an .rpm for Fedora and openSUSE.</p><a class="btn btn-play btn-small" data-asset="linux-x86_64.AppImage" href="#">Download AppImage</a></li>
+        <li><h3>Make it runnable</h3><p><code>chmod +x Aurora-Music-*.AppImage</code>, or <code>sudo apt install ./Aurora-Music-*.deb</code>.</p></li>
+        <li><h3>Press play</h3><p>Media keys work through MPRIS, so your desktop's player controls show the song too.</p></li>
+      </ol>
+
+      <div class="releases">
+        <h3 class="releases-title">Releases</h3>
+        <p class="releases-sub" data-releases-sub>Pulled live from GitHub.</p>
+        <div class="release-list" data-releases>
+          <article class="release latest">
+            <header><b>v1.0.0</b><span class="tag">Latest</span></header>
+            <h3>Aurora Music 1.0</h3>
+          </article>
+        </div>
+        <p class="all-files"><a href="https://github.com/devops-monk/aurora-music/releases/latest" target="_blank" rel="noopener">See every file in the latest release</a></p>
       </div>
-      <div class="steps" data-os-panel="win" hidden>
-        <div class="step"><b>01</b><h3>Download the installer</h3><p>One installer for both x64 and ARM64 PCs. Prefer no install? Use the <a class="inline-link" data-asset="win-portable.exe" href="#">portable .exe</a>.</p><a class="btn btn-primary btn-small" data-asset="win-x64.exe" href="#">Download for Windows</a></div>
-        <div class="step"><b>02</b><h3>Get past SmartScreen</h3><p>Windows warns about new apps. Click <em>More info</em>, then <em>Run anyway</em>.</p></div>
-        <div class="step"><b>03</b><h3>Press play</h3><p>Aurora Music appears in the Start menu. Media keys and the Windows media flyout just work.</p></div>
-      </div>
-      <div class="steps" data-os-panel="linux" hidden>
-        <div class="step"><b>01</b><h3>Pick a package</h3><p>AppImage runs anywhere; .deb for Debian/Ubuntu, .rpm for Fedora/openSUSE.</p><a class="btn btn-primary btn-small" data-asset="linux-x86_64.AppImage" href="#">Download AppImage</a></div>
-        <div class="step"><b>02</b><h3>Make it runnable</h3><p><code>chmod +x Aurora-Music-*.AppImage</code>, or install with <code>sudo apt install ./Aurora-Music-*.deb</code>.</p></div>
-        <div class="step"><b>03</b><h3>Press play</h3><p>Media keys work through MPRIS, so your desktop's player controls show the song too.</p></div>
-      </div>
-      <p class="all-downloads"><a href="https://github.com/devops-monk/aurora-music/releases/latest" target="_blank" rel="noopener">All files for the latest release →</a></p>
     </section>
 
-    <!-- ── FAQ ─────────────────────────────────────────────────────────── -->
-    <section class="faq">
-      <div class="section-head"><p class="eyebrow">Questions</p><h2>Good to know</h2></div>
-      <details><summary>Is it really free?</summary><p>Yes. There are no ads, no subscription and no tracking. Aurora Music is free software under the GPL-3.0, and the source is on GitHub.</p></details>
-      <details><summary>Do I need a YouTube Music account?</summary><p>No. You can search and play without signing in. Signing in with Google adds your library, liked songs and personalised home feed. Your session stays encrypted in your system keychain.</p></details>
-      <details><summary>Where do downloads go?</summary><p>To <code>Music/Aurora Music</code> in your home folder, each with its cover image beside it. Downloaded songs play from disk automatically, online or offline.</p></details>
-      <details><summary>Can I listen together with BitChord users?</summary><p>Yes. Aurora's Listen Together speaks the same party protocol as BitChord on Android, so anyone connected to the same party server shares the party.</p></details>
-      <details><summary>Is it affiliated with YouTube or Apple?</summary><p>No. Aurora Music is an independent project. It's styled after Apple Music's design language and plays from YouTube Music, but it is not endorsed by or connected to either company.</p></details>
+    <section class="faq" data-tint="#221d2b">
+      <h2>Good to know</h2>
+      <details><summary>Is it really free?</summary><p>Yes. No ads, no subscription and no tracking. Aurora Music is free software under the GPL-3.0, and the source is on GitHub.</p></details>
+      <details><summary>Do I need a YouTube Music account?</summary><p>No. You can search and play without signing in. Signing in with Google adds your library, liked songs and a personalised Home. Your session is kept encrypted in your system's keychain.</p></details>
+      <details><summary>Where do downloads go?</summary><p>To <code>Music/Aurora Music</code> in your home folder, each with its cover beside it. Downloaded songs play from disk, online or offline.</p></details>
+      <details><summary>Can I listen together with BitChord users?</summary><p>Yes. Listen Together uses the same party protocol as BitChord on Android, so anyone on the same party server can join.</p></details>
+      <details><summary>Is it affiliated with YouTube or Apple?</summary><p>No. Aurora Music is an independent project. It's styled after Apple Music's design and plays from YouTube Music, but neither company endorses it or is connected to it.</p></details>
     </section>
 
-    <section class="closing">
-      <img src="/assets/logo.svg" alt="" width="72" height="72" />
-      <h2>Ready when you are.</h2>
-      <a class="btn btn-primary" data-download href="#install"><span class="os-icon" data-os-icon></span><span data-download-label>Download Aurora Music</span></a>
+    <section class="closing" data-tint="#3a2527" style="--glow: url(/assets/shots/nowplaying.webp)">
+      <p class="closing-line">Press play.</p>
+      <a class="btn btn-play" data-download href="#install"><span class="os-icon" data-os-icon></span><span data-download-label>Download Aurora Music</span></a>
     </section>
   </main>
 
   <footer class="footer">
     <div class="footer-top">
-      <div class="footer-brand">
-        <a class="brand" href="#top"><img src="/assets/logo.svg" alt="" width="28" height="28" /><span>Aurora Music</span></a>
-        <p>An Apple Music-style, open-source YouTube Music player for macOS, Windows and Linux.</p>
-      </div>
-      <div><h4>Product</h4><a href="#features">Features</a><a href="#together">Listen Together</a><a href="#releases">Releases</a><a href="#install">Install guide</a></div>
-      <div><h4>Project</h4><a href="https://github.com/devops-monk/aurora-music" target="_blank" rel="noopener">Source on GitHub</a><a href="https://github.com/devops-monk/aurora-music/releases" target="_blank" rel="noopener">All releases</a><a href="https://github.com/devops-monk/aurora-music/issues" target="_blank" rel="noopener">Report a bug</a><a href="https://github.com/devops-monk/aurora-music/blob/main/NOTICE.md" target="_blank" rel="noopener">Credits</a></div>
+      <a class="brand" href="#top"><img src="/assets/logo.svg" alt="" width="24" height="24" /><span>Aurora Music</span></a>
+      <nav aria-label="Project">
+        <a href="https://github.com/devops-monk/aurora-music" target="_blank" rel="noopener">Source code</a>
+        <a href="https://github.com/devops-monk/aurora-music/releases" target="_blank" rel="noopener">All releases</a>
+        <a href="https://github.com/devops-monk/aurora-music/issues" target="_blank" rel="noopener">Report a bug</a>
+        <a href="https://github.com/devops-monk/aurora-music/blob/main/NOTICE.md" target="_blank" rel="noopener">Credits</a>
+      </nav>
     </div>
-    <p class="legal">© 2026 Aurora Music · GPL-3.0. An independent, non-commercial project. Not affiliated with, endorsed by, or connected to YouTube, Google LLC or Apple Inc. Aurora Music does not host or store copyrighted media; it is an interface to your local files and to public or user-authenticated services. Built on open-source work listed in <a href="https://github.com/devops-monk/aurora-music/blob/main/NOTICE.md" target="_blank" rel="noopener">Credits</a>.</p>
+    <p class="legal">© 2026 Aurora Music, GPL-3.0. An independent, non-commercial project, not affiliated with, endorsed by or connected to YouTube, Google LLC or Apple Inc. Aurora Music doesn't host or store copyrighted media; it's an interface to your own files and to public or signed-in services. Album art in the screenshots belongs to its owners. Built on open-source work listed in the <a href="https://github.com/devops-monk/aurora-music/blob/main/NOTICE.md" target="_blank" rel="noopener">credits</a>.</p>
   </footer>
 
   <script src="/app.js" defer></script>
