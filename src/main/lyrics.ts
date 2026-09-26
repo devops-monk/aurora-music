@@ -1,5 +1,5 @@
 import type { Lyrics, Song } from '@shared/models'
-import { cleanQuery, parseLrc, parseTtml, plainLines } from '@shared/lyrics'
+import { baseTitle, cleanQuery, parseLrc, parseTtml, plainLines } from '@shared/lyrics'
 import { getSettings } from './store'
 import { youtubeLyrics } from './ytm/client'
 
@@ -38,6 +38,25 @@ async function betterLyrics(song: Song, durationMs: number): Promise<Lyrics | nu
   return lines.some((l) => l.text) ? { source: 'BetterLyrics', synced: true, lines } : null
 }
 
+/** How far a hit's length may be from the track's when matched on the looser base title. */
+const MAX_DRIFT_S = 3
+
+/** The synced lyrics of the search hit closest in length, optionally within [maxDrift] seconds. */
+async function lrclibSearch(title: string, artist: string, seconds: number, maxDrift = Infinity): Promise<string | null> {
+  const hits = await get(`https://lrclib.net/api/search?${new URLSearchParams({ track_name: title, artist_name: artist })}`)
+  try {
+    const list = (hits ? JSON.parse(hits) : []) as { syncedLyrics?: string; duration?: number }[]
+    const drift = (h: { duration?: number }) => Math.abs((h.duration ?? 0) - seconds)
+    return (
+      list
+        .filter((h) => h.syncedLyrics?.trim() && drift(h) <= maxDrift)
+        .sort((a, b) => drift(a) - drift(b))[0]?.syncedLyrics ?? null
+    )
+  } catch {
+    return null
+  }
+}
+
 async function lrclib(song: Song, durationMs: number): Promise<Lyrics | null> {
   const title = cleanQuery(song.title)
   const artist = cleanQuery(song.artist.split(',')[0])
@@ -51,19 +70,12 @@ async function lrclib(song: Song, durationMs: number): Promise<Lyrics | null> {
   } catch {
     /* fall through to search */
   }
-  if (!synced) {
-    const hits = await get(`https://lrclib.net/api/search?${new URLSearchParams({ track_name: title, artist_name: artist })}`)
-    try {
-      const list = (hits ? JSON.parse(hits) : []) as { syncedLyrics?: string; duration?: number }[]
-      synced =
-        list
-          .filter((h) => h.syncedLyrics?.trim())
-          .sort((a, b) => Math.abs((a.duration ?? 0) - seconds) - Math.abs((b.duration ?? 0) - seconds))[0]
-          ?.syncedLyrics ?? null
-    } catch {
-      synced = null
-    }
-  }
+  synced ??= await lrclibSearch(title, artist, seconds)
+  // "Yeh Awarapan (Rain Version)" is catalogued as plain "Yeh Awarapan". The
+  // looser title only counts when the length matches too, which keeps a
+  // slowed, sped-up or remixed cut from borrowing the original's timing.
+  const base = baseTitle(title)
+  if (!synced && base !== title && seconds > 0) synced = await lrclibSearch(base, artist, seconds, MAX_DRIFT_S)
   if (!synced) return null
   const lines = parseLrc(synced)
   return lines.length ? { source: 'LRCLIB', synced: true, lines } : null

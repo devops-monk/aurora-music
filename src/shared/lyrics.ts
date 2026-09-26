@@ -223,6 +223,20 @@ export function cleanQuery(value: string): string {
   return cleaned || value
 }
 
+/**
+ * A title with every bracketed part and " - …" suffix removed: "Yeh Awarapan
+ * (Rain Version)" becomes "Yeh Awarapan". Only for a second, looser lookup,
+ * since what was removed may name a different recording.
+ */
+export function baseTitle(value: string): string {
+  const base = value
+    .replace(/\([^)]*\)|\[[^\]]*]/g, ' ')
+    .split(/\s[-–—|]\s/)[0]
+    .replace(/\s+/g, ' ')
+    .trim()
+  return base || value
+}
+
 /** The index of the line playing at [ms], or -1 before the first. */
 export function activeLineIndex(lines: LyricLine[], ms: number): number {
   let found = -1

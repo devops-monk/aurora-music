@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { activeLineIndex, cleanQuery, parseLrc, parseTtml, ttmlTime } from './lyrics'
+import { activeLineIndex, baseTitle, cleanQuery, parseLrc, parseTtml, ttmlTime } from './lyrics'
 import { durationMillis, formatTime, primaryArtist } from './models'
 
 describe('parseLrc', () => {
@@ -102,5 +102,15 @@ describe('helpers', () => {
     expect(durationMillis('abc')).toBe(0)
     expect(formatTime(225000)).toBe('3:45')
     expect(formatTime(3723000)).toBe('1:02:03')
+  })
+})
+
+describe('baseTitle', () => {
+  it('drops version tags and suffixes for the looser lookup', () => {
+    expect(baseTitle('Yeh Awarapan (Rain Version)')).toBe('Yeh Awarapan')
+    expect(baseTitle('Tujhe Kitna Chahne Lage (From "Kabir Singh")')).toBe('Tujhe Kitna Chahne Lage')
+    expect(baseTitle('Song Name - Slowed + Reverb')).toBe('Song Name')
+    expect(baseTitle('Anti-Hero')).toBe('Anti-Hero')
+    expect(baseTitle('(Intro)')).toBe('(Intro)')
   })
 })
