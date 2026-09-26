@@ -1,0 +1,36 @@
+# Listen Together party server for Aurora Music.
+# The binary is BitChord's GPL Go backend (github.com/kushagrasinghx/BitChord/tree/main/backend).
+[Unit]
+Description=Aurora Music Listen Together server
+After=network.target
+
+[Service]
+User=aurora-party
+Group=aurora-party
+ExecStart=/opt/aurora-party/aurora-party
+Environment=PORT=8765
+# nginx terminates TLS and sets X-Forwarded-For to the real client, for per-IP limits.
+Environment=JAM_TRUST_PROXY=true
+Restart=always
+RestartSec=3
+
+# The server binds 0.0.0.0 in code; this keeps its traffic loopback-only, so it
+# is reachable solely through nginx even if the firewall ever changes.
+IPAddressAllow=localhost
+IPAddressDeny=any
+
+# Hardening: it needs no disk, no privileges, nothing but its port.
+NoNewPrivileges=true
+ProtectSystem=strict
+ProtectHome=true
+PrivateTmp=true
+PrivateDevices=true
+ProtectKernelTunables=true
+ProtectKernelModules=true
+ProtectControlGroups=true
+RestrictSUIDSGID=true
+LockPersonality=true
+MemoryMax=256M
+
+[Install]
+WantedBy=multi-user.target
