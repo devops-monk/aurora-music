@@ -1,4 +1,5 @@
-import { BrowserWindow, ipcMain, shell } from 'electron'
+import { BrowserWindow, dialog, ipcMain, shell, app } from 'electron'
+import { join } from 'node:path'
 import type { Settings } from '@shared/api'
 import type { SearchFilter, Song } from '@shared/models'
 import * as ytm from './ytm/client'
@@ -6,6 +7,9 @@ import { resolveStream, streamInfo } from './ytm/stream'
 import { lyricsFor } from './lyrics'
 import { signIn, signOut } from './auth'
 import { getSettings, loadQueue, saveQueue, setSettings } from './store'
+import { download, downloadedPath, downloads, removeDownload } from './downloads'
+import { isLocalId } from '@shared/models'
+import { localSongs } from './local'
 
 /**
  * The one table of what the renderer may ask for. Every channel is
@@ -26,6 +30,7 @@ export function registerIpc(getWindow: () => BrowserWindow | null) {
     upNext: (videoId: string, playlistId?: string | null) => ytm.upNext(videoId, playlistId),
     lyrics: (song: Song, durationMs: number) => lyricsFor(song, durationMs),
     prefetch: async (videoId: string) => {
+      if (isLocalId(videoId) || downloadedPath(videoId)) return
       await resolveStream(videoId).catch(() => undefined)
     },
     streamInfo: (videoId: string) => streamInfo(videoId),
@@ -47,6 +52,31 @@ export function registerIpc(getWindow: () => BrowserWindow | null) {
     setSettings: (patch: Partial<Settings>) => setSettings(patch),
     saveQueue: (q: Parameters<typeof saveQueue>[0]) => saveQueue(q),
     loadQueue: () => loadQueue(),
+    downloads: () => downloads(),
+    download: (song: Song) => {
+      // Fire and forget: progress arrives on the aurora:downloads channel.
+      download(song)
+    },
+    removeDownload: (videoId: string) => removeDownload(videoId),
+    revealDownloads: () => shell.openPath(join(app.getPath('music'), 'Aurora Music')),
+    localSongs: (rescan?: boolean) => localSongs(rescan),
+    addLocalFolder: async () => {
+      const win = getWindow()
+      const res = win
+        ? await dialog.showOpenDialog(win, { properties: ['openDirectory', 'multiSelections'], title: 'Add a music folder' })
+        : await dialog.showOpenDialog({ properties: ['openDirectory', 'multiSelections'] })
+      if (res.canceled) return getSettings().localFolders
+      const folders = [...new Set([...getSettings().localFolders, ...res.filePaths])]
+      setSettings({ localFolders: folders })
+      await localSongs(true)
+      return folders
+    },
+    removeLocalFolder: async (path: string) => {
+      const folders = getSettings().localFolders.filter((f) => f !== path)
+      setSettings({ localFolders: folders })
+      await localSongs(true)
+      return folders
+    },
     openExternal: (url: string) => {
       if (/^https:\/\//.test(url)) return shell.openExternal(url)
       return undefined

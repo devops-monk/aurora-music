@@ -1,4 +1,4 @@
-import { artworkAt, durationMillis, PLAYER_ART_PX, type Song } from '@shared/models'
+import { artworkAt, durationMillis, isLocalId, PLAYER_ART_PX, type Song } from '@shared/models'
 import { streamUrl } from '@shared/api'
 import { usePlayer } from '../store/player'
 import { useSettings } from '../store/settings'
@@ -166,7 +166,8 @@ async function topUpRadio() {
   if (radioInFlight || !s.radio || !useSettings.getState().autoplay) return
   if (s.songs.length - 1 - s.index > RADIO_RUNWAY) return
   const seed = s.songs[s.songs.length - 1]
-  if (!seed) return
+  // Local files have no YouTube radio to continue into.
+  if (!seed || isLocalId(seed.videoId)) return
   radioInFlight = true
   try {
     const up = await window.aurora.upNext(seed.videoId, s.radioPlaylistId)

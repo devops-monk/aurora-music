@@ -87,7 +87,18 @@ export function Scrubber() {
   const [scrub, setScrub] = useState<number | null>(null)
   const fraction = durationMs > 0 ? positionMs / durationMs : 0
   const shownMs = scrub !== null ? scrub * durationMs : positionMs
-  const codec = stream?.mimeType.includes('opus') ? 'OPUS' : stream?.mimeType.includes('mp4a') ? 'AAC' : null
+  const codec = !stream
+    ? null
+    : stream.mimeType === 'local'
+      ? 'LOCAL FILE'
+      : stream.mimeType.includes('downloaded')
+        ? 'DOWNLOADED'
+        : stream.mimeType.includes('opus')
+          ? 'OPUS'
+          : stream.mimeType.includes('mp4a')
+            ? 'AAC'
+            : null
+  const kbps = stream?.bitrate ? ` · ${Math.round(stream.bitrate / 1000)} KBPS` : ''
   return (
     <div className="scrubber">
       <ThinSlider
@@ -102,8 +113,9 @@ export function Scrubber() {
       <div className="scrubber-times">
         <span>{formatTime(shownMs)}</span>
         {codec && (
-          <span className="quality-label" title={`${Math.round((stream?.bitrate ?? 0) / 1000)} kbps`}>
-            {codec} · {Math.round((stream?.bitrate ?? 0) / 1000)} KBPS
+          <span className="quality-label">
+            {codec}
+            {kbps}
           </span>
         )}
         <span>-{formatTime(Math.max(0, durationMs - shownMs))}</span>

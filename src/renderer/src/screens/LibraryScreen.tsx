@@ -5,6 +5,46 @@ import { FeedSkeleton } from '../components/Skeletons'
 import { PageScroll } from '../components/PageScroll'
 import { useUi } from '../store/ui'
 import { signIn } from '../lib/account'
+import { DownloadIcon, FolderIcon } from '../components/Icons'
+import { useDownloads } from '../store/downloads'
+
+/** `ServiceCard` from HomeScreen.kt: a gradient tile for an on-device collection. */
+function ServiceCard({ title, subtitle, colors, icon, onClick }: { title: string; subtitle: string; colors: [string, string]; icon: React.ReactNode; onClick: () => void }) {
+  return (
+    <div className="shelf-card service-card" onClick={onClick} role="button" tabIndex={0}>
+      <div className="service-card-art" style={{ background: `linear-gradient(135deg, ${colors[0]}, ${colors[1]})` }}>
+        {icon}
+      </div>
+      <div className="shelf-card-title ellipsis">{title}</div>
+      <div className="shelf-card-subtitle ellipsis">{subtitle}</div>
+    </div>
+  )
+}
+
+function OnThisComputer() {
+  const done = useDownloads((s) => s.list.filter((e) => e.state === 'done').length)
+  return (
+    <section className="shelf">
+      <SectionHeader title="On This Computer" />
+      <div className="library-grid">
+        <ServiceCard
+          title="Downloads"
+          subtitle={`${done} song${done === 1 ? '' : 's'}`}
+          colors={['#1E3C72', '#2A5298']}
+          icon={<DownloadIcon size={40} />}
+          onClick={() => useUi.getState().push({ kind: 'downloads' })}
+        />
+        <ServiceCard
+          title="Local Music"
+          subtitle="Audio files on this computer"
+          colors={['#134E5E', '#71B280']}
+          icon={<FolderIcon size={40} />}
+          onClick={() => useUi.getState().push({ kind: 'local' })}
+        />
+      </div>
+    </section>
+  )
+}
 
 const LIKED: ShelfItem = {
   title: 'Liked Music',
@@ -40,6 +80,7 @@ export function LibraryScreen() {
   return (
     <PageScroll id="library">
       <h1 className="page-title">Library</h1>
+      <OnThisComputer />
       {!accountLoaded ? null : !account ? (
         <MessageState
           message="Sign in to see your playlists, albums and artists from YouTube Music."

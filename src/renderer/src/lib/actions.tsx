@@ -1,7 +1,9 @@
 import type { ShelfItem, Song } from '@shared/models'
 import { usePlayer } from '../store/player'
 import { useUi } from '../store/ui'
-import { HeartIcon, LibraryIcon, PersonIcon, PlayNextIcon, PlusIcon, RadioIcon, ShareIcon } from '../components/Icons'
+import { CloseIcon, DownloadIcon, HeartIcon, LibraryIcon, PersonIcon, PlayNextIcon, PlusIcon, RadioIcon, ShareIcon } from '../components/Icons'
+import { isLocalId } from '@shared/models'
+import { useDownloads } from '../store/downloads'
 
 /** What a tap on a card or suggestion does: play it, or open its page. */
 export function openItem(item: ShelfItem, source?: string) {
@@ -60,6 +62,21 @@ export function openSongMenu(song: Song, at: { x: number; y: number }) {
     { label: 'Start Radio', icon: <RadioIcon size={18} />, onSelect: () => usePlayer.getState().playRadio(song, 'Radio') },
     { label: liked ? 'Remove from Liked' : 'Like', icon: <HeartIcon size={18} filled={liked} />, onSelect: () => toggleLike(song) },
   ]
+  if (!isLocalId(song.videoId)) {
+    const saved = useDownloads.getState().byId[song.videoId]
+    items.push(
+      saved
+        ? { label: saved.state === 'done' ? 'Remove Download' : 'Cancel Download', icon: <CloseIcon size={18} />, onSelect: () => window.aurora.removeDownload(song.videoId) }
+        : {
+            label: 'Download',
+            icon: <DownloadIcon size={18} />,
+            onSelect: () => {
+              window.aurora.download(song)
+              useUi.getState().showToast('Downloading…')
+            },
+          },
+    )
+  }
   if (song.albumId)
     items.push({
       label: 'Go to Album',
@@ -78,7 +95,7 @@ export function openSongMenu(song: Song, at: { x: number; y: number }) {
         useUi.getState().push({ kind: 'detail', browseId: song.artistId!, title: song.artist })
       },
     })
-  items.push({
+  if (!isLocalId(song.videoId)) items.push({
     label: 'Copy Link',
     icon: <ShareIcon size={18} />,
     onSelect: () => {

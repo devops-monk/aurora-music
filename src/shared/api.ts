@@ -1,6 +1,7 @@
 import type {
   Account,
   DetailPage,
+  DownloadEntry,
   ExplorePage,
   HomeFeed,
   HomeShelf,
@@ -27,6 +28,8 @@ export interface Settings {
   /** Seven bands at 60, 150, 400, 1k, 2.5k, 6k, 14k Hz, in dB (±12). */
   eqBands: number[]
   eqPreset: string
+  /** Folders scanned for Local Music. */
+  localFolders: string[]
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -41,6 +44,7 @@ export const DEFAULT_SETTINGS: Settings = {
   eqEnabled: false,
   eqBands: [0, 0, 0, 0, 0, 0, 0],
   eqPreset: 'Flat',
+  localFolders: [],
 }
 
 /** The queue as it is persisted between launches. */
@@ -86,6 +90,17 @@ export interface AuroraApi {
   setSettings(patch: Partial<Settings>): Promise<Settings>
   saveQueue(queue: SavedQueue): Promise<void>
   loadQueue(): Promise<SavedQueue | null>
+
+  downloads(): Promise<DownloadEntry[]>
+  download(song: Song): Promise<void>
+  removeDownload(videoId: string): Promise<void>
+  onDownloads(cb: (list: DownloadEntry[]) => void): () => void
+  revealDownloads(): Promise<void>
+
+  localSongs(rescan?: boolean): Promise<Song[]>
+  /** Opens a folder picker; resolves to the new folder list. */
+  addLocalFolder(): Promise<string[]>
+  removeLocalFolder(path: string): Promise<string[]>
 
   openExternal(url: string): Promise<void>
   /** Keeps the native Windows/Linux caption buttons legible on the current theme. */

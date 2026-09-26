@@ -32,6 +32,13 @@ const METHODS = [
   'saveQueue',
   'loadQueue',
   'openExternal',
+  'downloads',
+  'download',
+  'removeDownload',
+  'revealDownloads',
+  'localSongs',
+  'addLocalFolder',
+  'removeLocalFolder',
 ] as const
 
 const invoke = Object.fromEntries(
@@ -52,6 +59,7 @@ const api = {
   setTitleBarTheme: (dark: boolean) => ipcRenderer.send('aurora:setTitleBarTheme', dark),
   onMediaKey: (cb) => subscribe('aurora:media-key', cb),
   onFullscreen: (cb) => subscribe('aurora:fullscreen', cb),
+  onDownloads: (cb) => subscribe('aurora:downloads', cb),
 } as AuroraApi
 
 contextBridge.exposeInMainWorld('aurora', api)

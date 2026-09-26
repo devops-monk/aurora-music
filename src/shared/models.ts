@@ -139,6 +139,20 @@ export interface Lyrics {
 
 export type RepeatMode = 'off' | 'all' | 'one'
 
+export interface DownloadEntry {
+  song: Song
+  state: 'downloading' | 'done' | 'error'
+  /** 0–1 */
+  progress: number
+  path: string
+  mimeType: string
+  addedAt: number
+  error?: string
+}
+
+/** Local files and downloads play from disk; YouTube ids stream. */
+export const isLocalId = (id: string) => id.startsWith('local:')
+
 export interface StreamInfo {
   url: string
   mimeType: string

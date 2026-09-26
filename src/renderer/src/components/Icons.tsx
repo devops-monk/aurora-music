@@ -144,6 +144,18 @@ export const CheckIcon = (p: IconProps) => (
   </Stroke>
 )
 
+export const DownloadIcon = (p: IconProps) => (
+  <Stroke {...p}>
+    <path d="M12 4.5v11M7.5 11l4.5 4.5 4.5-4.5M4.5 18h15" />
+  </Stroke>
+)
+
+export const FolderIcon = (p: IconProps) => (
+  <Stroke {...p} strokeWidth={2}>
+    <path d="M3.5 7.5a2 2 0 0 1 2-2h4l2 2.2h7a2 2 0 0 1 2 2v7.8a2 2 0 0 1-2 2h-13a2 2 0 0 1-2-2Z" />
+  </Stroke>
+)
+
 export const ClockIcon = (p: IconProps) => (
   <Stroke {...p}>
     <path d="M3.4 12a8.6 8.6 0 1 1 17.2 0a8.6 8.6 0 1 1-17.2 0M12 7.4V12l3.4 1.8" />

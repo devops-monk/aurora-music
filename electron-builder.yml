@@ -8,6 +8,7 @@ files:
   - out/**
   - resources/**
   - build/icon.png
+  - build/icons/**
   - package.json
   - '!**/*.map'
 asarUnpack:
@@ -19,6 +20,7 @@ publish:
 
 mac:
   category: public.app-category.music
+  icon: build/icon.icns
   target:
     - target: dmg
       arch: [universal]
@@ -32,6 +34,7 @@ mac:
   artifactName: Aurora-Music-${version}-mac-${arch}.${ext}
 
 win:
+  icon: build/icon.ico
   target:
     - target: nsis
       arch: [x64, arm64]
@@ -43,8 +46,12 @@ nsis:
   perMachine: false
   allowToChangeInstallationDirectory: true
   shortcutName: Aurora Music
+  installerIcon: build/icon.ico
+  uninstallerIcon: build/icon.ico
+  installerHeaderIcon: build/icon.ico
 
 linux:
+  icon: build/icons
   category: AudioVideo;Audio;Player
   target: [AppImage, deb, rpm]
   artifactName: Aurora-Music-${version}-linux-${arch}.${ext}

@@ -16,6 +16,8 @@ import { SearchScreen } from './screens/SearchScreen'
 import { DetailScreen } from './screens/DetailScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
 import { EqualizerScreen } from './screens/EqualizerScreen'
+import { DownloadsScreen, LocalMusicScreen } from './screens/OfflineScreens'
+import { startDownloadsSync } from './store/downloads'
 import { NowPlaying } from './player/NowPlaying'
 
 function Root({ tab }: { tab: Tab }) {
@@ -42,6 +44,10 @@ function PageView({ page }: { page: Page }) {
       return <SettingsScreen />
     case 'equalizer':
       return <EqualizerScreen />
+    case 'downloads':
+      return <DownloadsScreen />
+    case 'local':
+      return <LocalMusicScreen />
   }
 }
 
@@ -51,6 +57,8 @@ function pageTitle(tab: Tab, page: Page | null) {
   if (!page) return TAB_TITLES[tab]
   if (page.kind === 'settings') return 'Settings'
   if (page.kind === 'equalizer') return 'Equalizer'
+  if (page.kind === 'downloads') return 'Downloads'
+  if (page.kind === 'local') return 'Local Music'
   return page.title ?? ''
 }
 
@@ -113,6 +121,7 @@ export function App() {
     useSettings.getState().load().then(() => usePlayer.getState().setVolume(useSettings.getState().volume))
     loadAccount()
     restoreQueue()
+    return startDownloadsSync()
   }, [])
 
   // Persist the volume, but not on every pixel of a drag.

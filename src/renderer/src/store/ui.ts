@@ -9,6 +9,8 @@ export type Page =
   | { kind: 'songs'; title: string; browseId: string }
   | { kind: 'settings' }
   | { kind: 'equalizer' }
+  | { kind: 'downloads' }
+  | { kind: 'local' }
 
 export interface ContextMenuState {
   x: number

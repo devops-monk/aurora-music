@@ -13,6 +13,8 @@
 import type { StreamInfo } from '@shared/models'
 import { poToken } from '../potoken'
 import { getSettings } from '../store'
+import { downloadedPath } from '../downloads'
+import { isLocalId } from '@shared/models'
 import { yt } from './client'
 
 interface Resolved extends StreamInfo {
@@ -91,6 +93,9 @@ export function invalidateStream(videoId: string) {
 
 /** The stream's details without its URL, for the renderer's quality label. */
 export async function streamInfo(videoId: string): Promise<StreamInfo> {
+  if (isLocalId(videoId)) return { url: '', mimeType: 'local', bitrate: 0 }
+  const saved = downloadedPath(videoId)
+  if (saved) return { url: '', mimeType: saved.mimeType + '; downloaded', bitrate: 0 }
   const { url: _url, expiresAt: _e, ...rest } = await resolveStream(videoId)
   return { url: '', ...rest }
 }

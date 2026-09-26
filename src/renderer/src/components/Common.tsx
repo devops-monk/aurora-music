@@ -2,7 +2,14 @@ import { memo, useRef, useState, type CSSProperties, type MouseEvent, type React
 import { artworkAt, CARD_ART_PX, HEADER_ART_PX, ROW_ART_PX, type ShelfItem, type Song } from '@shared/models'
 import { usePlayer } from '../store/player'
 import { openItem, openItemMenu, openSongMenu } from '../lib/actions'
-import { ChevronLeftIcon, ChevronRightIcon, EqualizerIcon, MoreIcon, MusicNoteIcon, PlayGlyph } from './Icons'
+import { ChevronLeftIcon, ChevronRightIcon, DownloadIcon, EqualizerIcon, MoreIcon, MusicNoteIcon, PlayGlyph } from './Icons'
+import { useDownloads } from '../store/downloads'
+
+/** `DownloadedBadge`: a small mark on rows already saved for offline. */
+function DownloadedBadge({ videoId }: { videoId: string }) {
+  const done = useDownloads((s) => s.byId[videoId]?.state === 'done')
+  return done ? <DownloadIcon size={16} className="downloaded-badge" aria-label="Downloaded" /> : null
+}
 
 /** Artwork with the hairline border (`thumbnailBorder`) and a note placeholder. */
 export function Artwork({
@@ -91,6 +98,7 @@ export const SongRow = memo(function SongRow({
         </div>
         <div className="song-row-subtitle ellipsis">{song.artist}</div>
       </div>
+      <DownloadedBadge videoId={song.videoId} />
       {isCurrent && trackNumber === undefined && (
         <span className="song-row-eq">{isPlaying ? <EqualizerIcon /> : <PlayGlyph size={20} />}</span>
       )}

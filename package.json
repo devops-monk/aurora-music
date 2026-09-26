@@ -21,6 +21,7 @@
     "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
+    "music-metadata": "^11.16.1",
     "youtubei.js": "18.1.0"
   },
   "devDependencies": {

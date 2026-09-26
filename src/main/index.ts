@@ -1,11 +1,20 @@
 import { app, BrowserWindow, Menu, nativeTheme, shell, type MenuItemConstructorOptions } from 'electron'
 import { join } from 'node:path'
+import { existsSync } from 'node:fs'
 import { registerIpc } from './ipc'
 import { handleStreamProtocol, registerSchemePrivileges } from './protocol'
 import { warmUpPoToken } from './potoken'
 
 app.setName('Aurora Music')
+// Windows groups taskbar buttons (and picks their icon) by this id; it must match electron-builder's appId.
+if (process.platform === 'win32') app.setAppUserModelId('io.github.devopsmonk.auroramusic')
 registerSchemePrivileges()
+
+/** The Aurora icon for window/taskbar use: the per-size Linux set when present, else the master PNG. */
+const appIcon = () => {
+  const sized = join(app.getAppPath(), 'build/icons/512x512.png')
+  return existsSync(sized) ? sized : join(app.getAppPath(), 'build/icon.png')
+}
 
 if (!app.requestSingleInstanceLock()) app.quit()
 
@@ -33,7 +42,7 @@ function createWindow() {
             height: 44,
           },
         }),
-    icon: join(app.getAppPath(), 'build/icon.png'),
+    icon: appIcon(),
     webPreferences: {
       preload: join(__dirname, '../preload/index.cjs'),
       sandbox: true,
@@ -103,6 +112,8 @@ app.on('second-instance', () => {
 })
 
 app.whenReady().then(() => {
+  // Running from source, macOS shows Electron's own Dock icon; a packaged app uses its .icns.
+  if (isMac && !app.isPackaged) app.dock?.setIcon(appIcon())
   handleStreamProtocol()
   registerIpc(() => mainWindow)
   buildMenu()
