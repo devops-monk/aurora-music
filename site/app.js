@@ -186,14 +186,13 @@
     })
     .catch(() => undefined)
 
-  fetch(`https://api.github.com/repos/${REPO}/releases?per_page=6`)
+  fetch(`https://api.github.com/repos/${REPO}/releases?per_page=3`)
     .then((r) => (r.ok ? r.json() : null))
     .then((releases) => {
       const list = (releases || []).filter((r) => !r.draft)
       if (!list.length) return
-      $('[data-releases]').innerHTML = list.map((r, i) => releaseCard(r, i === 0)).join('')
-      $('[data-releases-sub]').textContent =
-        list.length === 1 ? 'Pulled live from GitHub.' : `The latest ${list.length} builds, pulled live from GitHub.`
+      // Only the current build: older ones stay on GitHub for anyone who needs them.
+      $('[data-releases]').innerHTML = releaseCard(list[0], true)
       $$('[data-latest]').forEach((el) => (el.textContent = list[0].tag_name))
       const assets = list[0].assets || []
       $$('[data-asset]').forEach((a) => {
