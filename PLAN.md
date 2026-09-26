@@ -60,9 +60,17 @@ Source of truth for each element (read these while implementing):
 Desktop-only additions (the same visual language, nothing new-looking): hover states, right-click context menus styled like `SongActionsSheet`, keyboard shortcuts (Space, ←/→ seek, ⌘/Ctrl+F search, ⌘/Ctrl+L lyrics), and a resizable window with a 900×600 minimum.
 Window chrome: macOS uses `titleBarStyle: 'hiddenInset'` + `vibrancy: 'under-window'` (native traffic lights). Windows uses a frameless window with `titleBarOverlay` (native min/max/close) + `backgroundMaterial: 'mica'`. Linux uses a frameless window with `titleBarOverlay`. The in-app UI stays identical; only the OS window buttons differ.
 
-## Status (v0.1.0)
-Done: phases 1–6 (scaffold, design system, data layer, playback, screens, Now Playing + lyrics), plus 7 (Google sign-in) and 8 (packaging + CI release pipeline).
-Verified: typecheck, 23 unit tests, packaged macOS app streams full tracks (PO-token path) and loads Home, and Linux AppImage and Windows portable cross-build.
+## Status
+Done: phases 1–8, plus the later phases:
+- crossfade + 7-band EQ (Web Audio graph)
+- downloads and Local Music (aurora:// serves files with Range)
+- Last.fm and ListenBrainz scrobbling
+- Discord status (official RPC, not user-token gateway)
+- Listen Together (BitChord party protocol; verified with two instances)
+- website at aurora.devops-monk.com, party server at party.devops-monk.com (VPS, shared nginx)
+
+Still open: translations (reuse BitChord's strings), Replay listening stats, animated canvas artwork, lyrics translation.
+
 Stream findings (Sept 2026): WEB/TV clients are SABR-only; IOS/MWEB/YTMUSIC return plain URLs but 403 after ~1 MB without a PO token. YTMUSIC + a video-id-bound PO token on both the player request and `pot=` serves the whole file.
 
 ## Implementation phases (MVP = 1–6)
