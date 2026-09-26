@@ -145,7 +145,8 @@ export function shelfOf(node: any): HomeShelf | null {
   const title = str(node?.header?.title) || str(node?.title) || str(node?.header?.header?.title)
   const listItems = contents.filter((c) => c?.type === 'MusicResponsiveListItem')
   const songsLayout = listItems.length > 0 && listItems.every((c) => c.item_type === 'song' || c.item_type === 'video')
-  const items = contents.map(shelfItemOf).filter((x): x is ShelfItem => !!x)
+  // Nameless, artless entries (Explore's mood buttons, which it also lists as a proper grid) would render as blank tiles.
+  const items = contents.map(shelfItemOf).filter((x): x is ShelfItem => !!x && !!(x.title || x.thumbnailUrl))
   if (!items.length) return null
   const more = node?.header?.more_content?.endpoint?.payload ?? node?.bottom_button?.endpoint?.payload ?? node?.endpoint?.payload
   return {
