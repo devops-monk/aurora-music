@@ -5,7 +5,7 @@
  */
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import vm from 'node:vm'
-import { Innertube, Log, Platform, UniversalCache, YTNodes } from 'youtubei.js'
+import { Innertube, Log, Parser, Platform, UniversalCache, YTNodes } from 'youtubei.js'
 import type {
   Account,
   DetailPage,
@@ -26,6 +26,17 @@ import { bestThumb, browseTypeOfId, collectShelves, shelfItemOf, shelfOf, songOf
 import { loadCookie } from '../store'
 
 Log.setLevel(Log.Level.ERROR)
+
+/**
+ * youtubei.js skips a node it can't parse, but its default handler builds the
+ * warning from `package.json`'s `bugs.url`, a field electron-builder strips
+ * from packaged dependencies. In an installed app the warning itself throws
+ * and takes the whole response down (a signed-in Home feed with one unfamiliar
+ * shelf item failed entirely). Skipping quietly is what the default meant to do.
+ */
+Parser.setParserErrorHandler((ctx: any) => {
+  if (ctx.error_type === 'parse') console.warn(`[ytm] skipped unparseable ${ctx.classname}: ${ctx.error?.message ?? ctx.error}`)
+})
 
 /**
  * YouTube's player script, which youtubei.js extracts the signature and `n`
