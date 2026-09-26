@@ -42,6 +42,8 @@ win:
       arch: [x64]
   artifactName: Aurora-Music-${version}-win-${arch}.${ext}
 nsis:
+  # One installer carrying both x64 and ARM64; it installs whichever the PC is.
+  artifactName: Aurora-Music-${version}-win-setup.${ext}
   oneClick: false
   perMachine: false
   allowToChangeInstallationDirectory: true
@@ -49,6 +51,9 @@ nsis:
   installerIcon: build/icon.ico
   uninstallerIcon: build/icon.ico
   installerHeaderIcon: build/icon.ico
+
+portable:
+  artifactName: Aurora-Music-${version}-win-portable.${ext}
 
 linux:
   icon: build/icons

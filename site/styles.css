@@ -1024,3 +1024,9 @@ details p {
     transition: none !important;
   }
 }
+
+.inline-link {
+  color: var(--text);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}

@@ -198,7 +198,9 @@
   // ── Live GitHub data: stars, releases, and real download links ────────
   const ASSET_MATCH = {
     'mac-universal.dmg': (n) => /mac.*\.dmg$/i.test(n),
-    'win-x64.exe': (n) => /win.*\.exe$/i.test(n) && !/portable/i.test(n),
+    // The combined x64 + ARM64 installer: "-win-setup.exe", or "-win.exe" in builds before 0.2.1.
+    'win-x64.exe': (n) => /-win-setup\.exe$/i.test(n) || /-win\.exe$/i.test(n),
+    'win-portable.exe': (n) => /-win-portable\.exe$/i.test(n),
     'linux-x86_64.AppImage': (n) => /\.AppImage$/i.test(n),
   }
   const fmtDate = (s) => new Date(s).toLocaleDateString(undefined, { month: 'short', day: 'numeric', year: 'numeric' })
