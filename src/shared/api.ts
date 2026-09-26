@@ -30,6 +30,9 @@ export interface Settings {
   eqPreset: string
   /** Folders scanned for Local Music. */
   localFolders: string[]
+  discordEnabled: boolean
+  /** A Discord Application id; empty uses the one built in, if any. */
+  discordClientId: string
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -45,6 +48,15 @@ export const DEFAULT_SETTINGS: Settings = {
   eqBands: [0, 0, 0, 0, 0, 0, 0],
   eqPreset: 'Flat',
   localFolders: [],
+  discordEnabled: true,
+  discordClientId: '',
+}
+
+export interface PresenceUpdate {
+  song: Song
+  positionMs: number
+  durationMs: number
+  playing: boolean
 }
 
 export interface ScrobbleStatus {
@@ -108,6 +120,9 @@ export interface AuroraApi {
   /** Opens a folder picker; resolves to the new folder list. */
   addLocalFolder(): Promise<string[]>
   removeLocalFolder(path: string): Promise<string[]>
+
+  updatePresence(update: PresenceUpdate | null): Promise<void>
+  discordStatus(): Promise<{ connected: boolean; builtInId: boolean }>
 
   scrobbleStatus(): Promise<ScrobbleStatus>
   lastfmBeginAuth(): Promise<void>

@@ -5,6 +5,7 @@ import './styles/tokens.css'
 import './styles/app.css'
 import './audio/engine'
 import './audio/scrobbler'
+import './audio/presence'
 import { App } from './App'
 
 createRoot(document.getElementById('root')!).render(

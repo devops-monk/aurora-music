@@ -68,6 +68,7 @@ jobs:
           # Optional: Last.fm scrobbling is offered only when these repository secrets exist.
           MAIN_VITE_LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           MAIN_VITE_LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
+          MAIN_VITE_DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
       - name: Package (${{ matrix.platform }})
         shell: bash
         env:

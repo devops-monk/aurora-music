@@ -39,6 +39,8 @@ const METHODS = [
   'localSongs',
   'addLocalFolder',
   'removeLocalFolder',
+  'updatePresence',
+  'discordStatus',
   'scrobbleStatus',
   'lastfmBeginAuth',
   'lastfmFinishAuth',

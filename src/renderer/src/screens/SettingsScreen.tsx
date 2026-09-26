@@ -104,6 +104,8 @@ export function SettingsScreen() {
 
         <Scrobbling />
 
+        <Discord />
+
         <Group title="Lyrics" footer="Sources are tried in order; the first synced result wins.">
           {s.lyricsSources.map((source, i) => (
             <div className="settings-row" key={source}>
@@ -300,6 +302,52 @@ function Scrobbling() {
           </button>
         </form>
       )}
+    </Group>
+  )
+}
+
+/** Discord status: a switch, and the Application id to show under. */
+function Discord() {
+  const { discordEnabled, discordClientId, update } = useSettings()
+  const [status, setStatus] = useState<{ connected: boolean; builtInId: boolean } | null>(null)
+  const [draft, setDraft] = useState(discordClientId)
+  useEffect(() => {
+    const poll = () => window.aurora.discordStatus().then(setStatus)
+    poll()
+    const t = setInterval(poll, 3000)
+    return () => clearInterval(t)
+  }, [])
+  const hasId = !!discordClientId || !!status?.builtInId
+  return (
+    <Group
+      title="Discord"
+      footer="Shows what you're listening to on your Discord profile while the Discord app is open. Create a free application at discord.com/developers to get an Application ID."
+    >
+      <label className="settings-row is-button">
+        <div className="settings-row-text">
+          <div className="settings-row-title">Show as status</div>
+          <div className="settings-row-subtitle">
+            {!discordEnabled ? 'Off' : !hasId ? 'Needs an Application ID' : status?.connected ? 'Connected to Discord' : 'Waiting for Discord…'}
+          </div>
+        </div>
+        <input type="checkbox" className="switch" checked={discordEnabled} onChange={(e) => update({ discordEnabled: e.target.checked })} />
+      </label>
+      <form
+        className="settings-row"
+        onSubmit={(e) => {
+          e.preventDefault()
+          update({ discordClientId: draft.trim() })
+        }}
+      >
+        <div className="settings-row-text">
+          <div className="settings-row-title">Application ID</div>
+          <div className="settings-row-subtitle">{status?.builtInId ? 'Optional: overrides the built-in one' : 'From the Discord Developer Portal'}</div>
+        </div>
+        <input className="settings-input" value={draft} placeholder="e.g. 1234567890123456789" onChange={(e) => setDraft(e.target.value.replace(/\D/g, ''))} />
+        <button className="pill-button is-small" type="submit" disabled={draft.trim() === discordClientId}>
+          Save
+        </button>
+      </form>
     </Group>
   )
 }

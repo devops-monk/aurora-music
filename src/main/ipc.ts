@@ -11,6 +11,8 @@ import { download, downloadedPath, downloads, removeDownload } from './downloads
 import { isLocalId } from '@shared/models'
 import { localSongs } from './local'
 import * as scrobbler from './scrobble'
+import { buildClientId, discordConnected, refreshPresence, updatePresence } from './discord'
+import type { PresenceUpdate } from '@shared/api'
 
 /**
  * The one table of what the renderer may ask for. Every channel is
@@ -50,7 +52,11 @@ export function registerIpc(getWindow: () => BrowserWindow | null) {
       ytm.resetSession()
     },
     getSettings: () => getSettings(),
-    setSettings: (patch: Partial<Settings>) => setSettings(patch),
+    setSettings: (patch: Partial<Settings>) => {
+      const next = setSettings(patch)
+      if ('discordEnabled' in patch || 'discordClientId' in patch) refreshPresence()
+      return next
+    },
     saveQueue: (q: Parameters<typeof saveQueue>[0]) => saveQueue(q),
     loadQueue: () => loadQueue(),
     downloads: () => downloads(),
@@ -78,6 +84,8 @@ export function registerIpc(getWindow: () => BrowserWindow | null) {
       await localSongs(true)
       return folders
     },
+    updatePresence: (update: PresenceUpdate | null) => updatePresence(update),
+    discordStatus: () => ({ connected: discordConnected(), builtInId: !!buildClientId() }),
     scrobbleStatus: () => scrobbler.status(),
     lastfmBeginAuth: () => scrobbler.lastfmBeginAuth(),
     lastfmFinishAuth: () => scrobbler.lastfmFinishAuth(),
