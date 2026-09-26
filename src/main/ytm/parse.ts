@@ -166,6 +166,10 @@ export function collectShelves(root: any, depth = 0, out: HomeShelf[] = []): Hom
     return out
   }
   if (typeof root !== 'object') return out
+  // A raw `actions.execute(..., { parse: true })` wraps its nodes in a SuperParsedResult.
+  if (typeof root.item === 'function' && typeof root.array === 'function' && 'is_null' in root) {
+    return root.is_null ? out : collectShelves(root.is_array ? root.array() : root.item(), depth + 1, out)
+  }
   if (['MusicCarouselShelf', 'MusicShelf', 'Grid', 'MusicPlaylistShelf'].includes(root.type)) {
     const shelf = shelfOf(root)
     if (shelf) out.push(shelf)
