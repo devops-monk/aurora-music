@@ -34,6 +34,8 @@ export interface Settings {
   localFolders: string[]
   /** Listen Together server, e.g. https://party.example.com; empty uses the built-in default. */
   partyServer: string
+  /** Apple Music motion artwork on the player and album pages, where a release has it. */
+  animatedCovers: boolean
   /** Language lyrics translate into ('' = the app's language). */
   lyricsTranslateTo: string
   discordEnabled: boolean
@@ -59,6 +61,7 @@ export const DEFAULT_SETTINGS: Settings = {
   discordClientId: '',
   partyServer: '',
   lyricsTranslateTo: '',
+  animatedCovers: true,
 }
 
 // ---- Listen Together (BitChord party-server protocol) ----------------------
@@ -261,6 +264,9 @@ export interface AuroraApi {
 
   translateLyrics(videoId: string, lines: string[], target: string): Promise<LyricsTranslation>
 
+  motionForSong(title: string, artist: string, album: string | null): Promise<MotionArtwork | null>
+  motionForAlbum(album: string, artist: string): Promise<MotionArtwork | null>
+
   recordPlay(play: PlayRecord): Promise<void>
   replay(month?: string): Promise<ReplayMonth>
   replayMonths(): Promise<string[]>
@@ -287,3 +293,10 @@ export interface AuroraApi {
 /** URL scheme the renderer's <audio> plays from; see src/main/protocol.ts. */
 export const STREAM_SCHEME = 'aurora'
 export const streamUrl = (videoId: string) => `${STREAM_SCHEME}://stream/${encodeURIComponent(videoId)}`
+
+/** An animated cover: HLS playlists on Apple's CDN, square rendition first. */
+export interface MotionArtwork {
+  url: string
+  fallbackUrl: string | null
+  album: string | null
+}

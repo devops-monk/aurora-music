@@ -48,6 +48,8 @@ const METHODS = [
   'partyProbe',
   'partyDefaultServer',
   'translateLyrics',
+  'motionForSong',
+  'motionForAlbum',
   'recordPlay',
   'replay',
   'replayMonths',

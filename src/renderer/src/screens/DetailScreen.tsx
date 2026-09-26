@@ -8,6 +8,7 @@ import { CloseIcon, PlayGlyph, SearchIcon, ShuffleIcon } from '../components/Ico
 import { useArtworkPalette } from '../theme/useArtworkPalette'
 import { useIsDark } from '../theme/useTheme'
 import { usePlayer } from '../store/player'
+import { MotionCover } from '../components/MotionCover'
 import { useUi } from '../store/ui'
 
 /**
@@ -118,6 +119,7 @@ function ReleaseBody({ page, songs, loadingMore }: { page: DetailPage; songs: So
         <Backdrop url={page.thumbnailUrl} />
         <div className="detail-sleeve">
           {page.thumbnailUrl && <img src={artworkAt(page.thumbnailUrl, HEADER_ART_PX)!} alt="" />}
+          {isAlbum && page.subtitle && <MotionCover lookup={{ kind: 'album', album: page.title, artist: page.subtitle }} />}
         </div>
         <h1 className="detail-title">{page.title}</h1>
         {page.subtitle && (

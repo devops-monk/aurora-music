@@ -55,6 +55,12 @@ export function SettingsScreen() {
             value={s.reduceAnimation}
             onChange={(reduceAnimation) => s.update({ reduceAnimation })}
           />
+          <Toggle
+            title="Animated cover art"
+            subtitle="Apple Music's moving covers on the player and album pages"
+            value={s.animatedCovers}
+            onChange={(animatedCovers) => s.update({ animatedCovers })}
+          />
         </Group>
 
         <Group title="Playback">

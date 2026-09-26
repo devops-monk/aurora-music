@@ -10,6 +10,7 @@ import { Lyrics } from './Lyrics'
 import { QueuePane } from './QueuePane'
 import { ChevronDownIcon, MusicNoteIcon } from '../components/Icons'
 import { ExplicitBadge } from '../components/Common'
+import { MotionCover } from '../components/MotionCover'
 
 /** `LANDSCAPE_PLAYER_MIN_WIDTH`: narrower than this, the player takes its portrait shape. */
 const LANDSCAPE_MIN_WIDTH = 560
@@ -82,6 +83,7 @@ function PlayerBody() {
     >
       {!artLoaded && <MusicNoteIcon className="player-sleeve-placeholder" />}
       {art && <img src={art} alt="" onLoad={() => setArtLoaded(true)} style={{ opacity: artLoaded ? 1 : 0 }} />}
+      <MotionCover lookup={{ kind: 'song', title: song.title, artist: song.artist, album: song.albumName }} playing={isPlaying} />
     </motion.div>
   )
 

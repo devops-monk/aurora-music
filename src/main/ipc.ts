@@ -16,6 +16,7 @@ import type { PartyControl, PartyIdentity, PresenceUpdate } from '@shared/api'
 import * as party from './party'
 import * as replayStore from './replay'
 import { translateLyrics } from './translate'
+import { motionForAlbum, motionForSong } from './canvas'
 import type { PlayRecord } from '@shared/api'
 
 /**
@@ -97,6 +98,8 @@ export function registerIpc(getWindow: () => BrowserWindow | null) {
     partyProbe: (address: string) => party.probeServer(address),
     partyDefaultServer: () => party.defaultServer(),
     translateLyrics: (videoId: string, lines: string[], target: string) => translateLyrics(videoId, lines, target),
+    motionForSong: (title: string, artist: string, album: string | null) => motionForSong(title, artist, album),
+    motionForAlbum: (album: string, artist: string) => motionForAlbum(album, artist),
     recordPlay: (play: PlayRecord) => replayStore.recordPlay(play),
     replay: (month?: string) => replayStore.replay(month),
     replayMonths: () => replayStore.replayMonths(),
