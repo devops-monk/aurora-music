@@ -21,6 +21,12 @@ export interface Settings {
   autoplay: boolean
   lyricsSources: ('lrclib' | 'youtube' | 'betterlyrics')[]
   volume: number
+  /** 0 = gapless handover; 1–12 s = overlap and fade between tracks. */
+  crossfadeSeconds: number
+  eqEnabled: boolean
+  /** Seven bands at 60, 150, 400, 1k, 2.5k, 6k, 14k Hz, in dB (±12). */
+  eqBands: number[]
+  eqPreset: string
 }
 
 export const DEFAULT_SETTINGS: Settings = {
@@ -31,6 +37,10 @@ export const DEFAULT_SETTINGS: Settings = {
   autoplay: true,
   lyricsSources: ['betterlyrics', 'lrclib', 'youtube'],
   volume: 1,
+  crossfadeSeconds: 0,
+  eqEnabled: false,
+  eqBands: [0, 0, 0, 0, 0, 0, 0],
+  eqPreset: 'Flat',
 }
 
 /** The queue as it is persisted between launches. */

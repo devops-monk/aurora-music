@@ -15,6 +15,7 @@ import { LibraryScreen } from './screens/LibraryScreen'
 import { SearchScreen } from './screens/SearchScreen'
 import { DetailScreen } from './screens/DetailScreen'
 import { SettingsScreen } from './screens/SettingsScreen'
+import { EqualizerScreen } from './screens/EqualizerScreen'
 import { NowPlaying } from './player/NowPlaying'
 
 function Root({ tab }: { tab: Tab }) {
@@ -39,6 +40,8 @@ function PageView({ page }: { page: Page }) {
       return <MoodScreen browseId={page.browseId} params={page.params} title={page.title} />
     case 'settings':
       return <SettingsScreen />
+    case 'equalizer':
+      return <EqualizerScreen />
   }
 }
 
@@ -47,6 +50,7 @@ const TAB_TITLES: Record<Tab, string> = { home: 'Home', explore: 'Explore', libr
 function pageTitle(tab: Tab, page: Page | null) {
   if (!page) return TAB_TITLES[tab]
   if (page.kind === 'settings') return 'Settings'
+  if (page.kind === 'equalizer') return 'Equalizer'
   return page.title ?? ''
 }
 

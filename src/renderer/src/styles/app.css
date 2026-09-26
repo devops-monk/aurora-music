@@ -1998,3 +1998,76 @@ img {
     --page-gutter: 14px;
   }
 }
+
+/* ---- equalizer (EqualizerScreen.kt) --------------------------------------------------- */
+
+.eq-panel {
+  margin: 18px 0 26px;
+  padding: 16px 16px 12px;
+  border-radius: 14px;
+  background: var(--surface-variant);
+  transition: opacity var(--t-med);
+}
+.eq-panel.is-off {
+  opacity: 0.55;
+}
+.eq-curve {
+  display: block;
+  width: 100%;
+  height: 140px;
+}
+.eq-bands {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  margin-top: 14px;
+}
+.eq-band {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.eq-band-db,
+.eq-band-hz {
+  font: var(--label-medium);
+  color: var(--on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}
+.eq-band-hz {
+  color: var(--on-bg);
+}
+.eq-slider {
+  writing-mode: vertical-lr;
+  direction: rtl;
+  appearance: none;
+  width: 6px;
+  height: 170px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--on-bg) 16%, transparent);
+  cursor: pointer;
+}
+.eq-slider::-webkit-slider-thumb {
+  appearance: none;
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.35);
+}
+.eq-presets {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 0 26px;
+}
+.settings-slider {
+  flex: 0 0 180px;
+  accent-color: var(--on-bg);
+}
+.settings-value {
+  min-width: 34px;
+  text-align: right;
+  font: var(--label-medium);
+  color: var(--on-surface-variant);
+  font-variant-numeric: tabular-nums;
+}

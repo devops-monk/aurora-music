@@ -77,6 +77,28 @@ export function SettingsScreen() {
             value={s.autoplay}
             onChange={(autoplay) => s.update({ autoplay })}
           />
+          <div className="settings-row">
+            <div className="settings-row-text">
+              <div className="settings-row-title">Crossfade</div>
+              <div className="settings-row-subtitle">Overlap the end of a song with the start of the next</div>
+            </div>
+            <input
+              type="range"
+              className="settings-slider"
+              min={0}
+              max={12}
+              step={1}
+              value={s.crossfadeSeconds}
+              onChange={(e) => s.update({ crossfadeSeconds: Number(e.target.value) })}
+            />
+            <span className="settings-value">{s.crossfadeSeconds ? `${s.crossfadeSeconds}s` : 'Off'}</span>
+          </div>
+          <Row
+            title="Equalizer"
+            subtitle={s.eqEnabled ? s.eqPreset : 'Off'}
+            chevron
+            onClick={() => useUi.getState().push({ kind: 'equalizer' })}
+          />
         </Group>
 
         <Group title="Lyrics" footer="Sources are tried in order; the first synced result wins.">

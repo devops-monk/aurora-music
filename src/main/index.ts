@@ -41,6 +41,8 @@ function createWindow() {
       nodeIntegration: false,
       // Keep audio and lyrics timing running while the window is hidden.
       backgroundThrottling: false,
+      // Media keys and a restored queue start playback without a click in the page.
+      autoplayPolicy: 'no-user-gesture-required',
     },
   })
 

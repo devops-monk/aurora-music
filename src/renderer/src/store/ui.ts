@@ -8,6 +8,7 @@ export type Page =
   | { kind: 'mood'; browseId: string; params?: string | null; title: string }
   | { kind: 'songs'; title: string; browseId: string }
   | { kind: 'settings' }
+  | { kind: 'equalizer' }
 
 export interface ContextMenuState {
   x: number

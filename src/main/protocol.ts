@@ -37,6 +37,8 @@ async function forward(videoId: string, range: string | null, retry = true): Pro
     if (value) headers.set(name, value)
   }
   headers.set('accept-ranges', 'bytes')
+  // The renderer's <audio> is crossOrigin="anonymous" so Web Audio can process it.
+  headers.set('access-control-allow-origin', '*')
   headers.set('content-type', stream.mimeType.split(';')[0])
   return new Response(upstream.body, { status: upstream.status, headers })
 }

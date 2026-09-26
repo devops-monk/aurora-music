@@ -2,6 +2,7 @@ import { artworkAt, durationMillis, PLAYER_ART_PX, type Song } from '@shared/mod
 import { streamUrl } from '@shared/api'
 import { usePlayer } from '../store/player'
 import { useSettings } from '../store/settings'
+import { AudioGraph } from './graph'
 
 /**
  * Playback, the desktop `PlaybackService.kt` for the MVP: two <audio>
@@ -10,6 +11,10 @@ import { useSettings } from '../store/settings'
  * (`Autoplay.kt`); loudness normalisation from YouTube's `loudness_db`; and the
  * Media Session, which puts the track in macOS Now Playing, Windows' media
  * flyout and Linux MPRIS, and wires hardware media keys.
+ *
+ * Both elements play through a Web Audio graph (see graph.ts) for the
+ * equaliser and for crossfades, where the two overlap and fade
+ * (`CrossfadeController.kt`, without Automix's beat matching).
  */
 
 /** Start buffering the next track this long before the current one ends. */
@@ -22,13 +27,20 @@ const RESTART_THRESHOLD_MS = 3000
 const elements = [new Audio(), new Audio()]
 elements.forEach((el) => {
   el.preload = 'auto'
+  // Web Audio only hears a media element whose source is CORS-clean.
+  el.crossOrigin = 'anonymous'
 })
 let active = 0
+let graph: AudioGraph | null = null
+/** Each element's own loudness normalisation gain. */
+const normalization = [1, 1]
+/** The videoId a crossfade is handing over to, while one is being set up. */
+let crossfadeTo: string | null = null
+let crossfadeTimer: ReturnType<typeof setTimeout> | null = null
 /** videoId the spare element has buffered, if any. */
 let spareFor: string | null = null
 let loadedToken = -1
 let loadedVideoId: string | null = null
-let normalization = 1
 let radioInFlight = false
 let pendingSeekMs = 0
 
@@ -37,15 +49,30 @@ const spare = () => elements[1 - active]
 
 export const getPositionMs = () => cur().currentTime * 1000
 
-function applyVolume() {
-  const { volume } = usePlayer.getState()
-  const gain = useSettings.getState().normalizeVolume ? normalization : 1
-  // A perceptual curve: linear slider positions are far too loud at the bottom.
-  cur().volume = Math.min(1, Math.max(0, Math.pow(volume, 2) * gain))
+function ensureGraph(): AudioGraph {
+  if (!graph) {
+    graph = new AudioGraph(elements)
+    const s = useSettings.getState()
+    graph.setEq(s.eqEnabled, s.eqBands)
+    applyVolume()
+  }
+  graph.resume()
+  return graph
 }
 
-function setNormalization(loudnessDb: number | undefined) {
-  normalization = loudnessDb && loudnessDb > 0 ? Math.max(0.1, Math.pow(10, -loudnessDb / 20)) : 1
+export const audioGraph = () => graph
+
+const trackLevel = (i: number) => (useSettings.getState().normalizeVolume ? normalization[i] : 1)
+
+function applyVolume() {
+  if (!graph) return
+  // A perceptual curve: linear slider positions are far too loud at the bottom.
+  graph.setMaster(Math.pow(usePlayer.getState().volume, 2))
+  if (!crossfadeTimer) graph.setTrack(active, trackLevel(active))
+}
+
+function setNormalization(index: number, loudnessDb: number | undefined) {
+  normalization[index] = loudnessDb && loudnessDb > 0 ? Math.max(0.1, Math.pow(10, -loudnessDb / 20)) : 1
   applyVolume()
 }
 
@@ -54,7 +81,7 @@ async function loadStreamInfo(videoId: string) {
     const info = await window.aurora.streamInfo(videoId)
     if (usePlayer.getState().current()?.videoId !== videoId) return
     usePlayer.setState({ stream: info })
-    setNormalization(info.loudnessDb)
+    setNormalization(active, info.loudnessDb)
   } catch {
     /* the label is optional */
   }
@@ -75,7 +102,16 @@ function updateMediaSession(song: Song | null) {
   })
 }
 
+function cancelCrossfade() {
+  if (!crossfadeTimer) return
+  clearTimeout(crossfadeTimer)
+  crossfadeTimer = null
+  spare().pause()
+}
+
 function load(song: Song, autoplay: boolean, startMs = 0) {
+  ensureGraph()
+  cancelCrossfade()
   loadedVideoId = song.videoId
   usePlayer.setState({
     isLoading: true,
@@ -171,6 +207,7 @@ elements.forEach((el) => {
     if (el !== cur()) return
     usePlayer.setState({ positionMs: el.currentTime * 1000 })
     if (Number.isFinite(el.duration) && el.duration - el.currentTime < PRELOAD_LEAD_S) preloadSpare()
+    maybeStartCrossfade(el)
     if ('mediaSession' in navigator && Number.isFinite(el.duration) && el.duration > 0) {
       try {
         navigator.mediaSession.setPositionState({
@@ -198,13 +235,63 @@ elements.forEach((el) => {
   })
 })
 
+// ---- crossfade -----------------------------------------------------------------
+
+/**
+ * With a crossfade set, the next track starts [seconds] before this one ends
+ * and the two overlap: the outgoing one fades down while the incoming one fades
+ * up, each at its own normalised level. Needs the next track already buffered on
+ * the spare element; otherwise the ordinary gapless handover happens at the end.
+ */
+function maybeStartCrossfade(el: HTMLMediaElement) {
+  const seconds = useSettings.getState().crossfadeSeconds
+  const s = usePlayer.getState()
+  const next = s.songs[s.index + 1]
+  if (!seconds || !graph || crossfadeTimer || s.repeat === 'one' || !next) return
+  if (!Number.isFinite(el.duration) || el.duration < seconds * 3) return
+  if (el.duration - el.currentTime > seconds || spareFor !== next.videoId) return
+  if (spare().readyState < HTMLMediaElement.HAVE_FUTURE_DATA) return
+  crossfadeTo = next.videoId
+  s.jumpTo(s.index + 1)
+}
+
+function startCrossfade(song: Song) {
+  const g = ensureGraph()
+  const remaining = cur().duration - cur().currentTime
+  const seconds = Math.max(0.5, Math.min(useSettings.getState().crossfadeSeconds, Number.isFinite(remaining) ? remaining : 1))
+  const outgoing = active
+  const outgoingEl = cur()
+  active = 1 - active
+  spareFor = null
+  loadedVideoId = song.videoId
+  normalization[active] = 1
+  usePlayer.setState({ isLoading: false, stream: null, positionMs: 0, durationMs: durationMillis(song.durationText), error: null })
+  updateMediaSession(song)
+  cur().currentTime = 0
+  g.setTrack(active, 0)
+  cur().play().catch(() => undefined)
+  g.fade(outgoing, trackLevel(outgoing), 0, seconds)
+  g.fade(active, 0, trackLevel(active), seconds)
+  crossfadeTimer = setTimeout(() => {
+    crossfadeTimer = null
+    outgoingEl.pause()
+    applyVolume()
+  }, seconds * 1000 + 50)
+  loadStreamInfo(song.videoId)
+  prefetchNeighbours()
+  topUpRadio()
+}
+
 // ---- store → engine ---------------------------------------------------------
 
 usePlayer.subscribe((state, prev) => {
   const song = state.current()
   if (state.playToken !== loadedToken && song) {
     loadedToken = state.playToken
-    if (song.videoId === loadedVideoId && state.positionMs === 0 && prev.playToken !== state.playToken) {
+    if (crossfadeTo === song.videoId) {
+      crossfadeTo = null
+      startCrossfade(song)
+    } else if (song.videoId === loadedVideoId && state.positionMs === 0 && prev.playToken !== state.playToken) {
       // Same track asked for again (repeat-one, "previous" at the start): restart it.
       cur().currentTime = 0
       cur().play().catch(() => undefined)
@@ -227,6 +314,7 @@ usePlayer.subscribe((state, prev) => {
 
 useSettings.subscribe((s, prev) => {
   if (s.normalizeVolume !== prev.normalizeVolume) applyVolume()
+  if (graph && (s.eqEnabled !== prev.eqEnabled || s.eqBands !== prev.eqBands)) graph.setEq(s.eqEnabled, s.eqBands)
 })
 
 // ---- controls -----------------------------------------------------------------
@@ -235,6 +323,7 @@ export function togglePlay() {
   const s = usePlayer.getState()
   const song = s.current()
   if (!song) return
+  ensureGraph()
   if (loadedVideoId !== song.videoId) {
     // Restored queue: nothing loaded yet.
     loadedToken = s.playToken
@@ -242,7 +331,10 @@ export function togglePlay() {
     return
   }
   if (cur().paused) cur().play().catch(() => undefined)
-  else cur().pause()
+  else {
+    cancelCrossfade()
+    cur().pause()
+  }
 }
 
 export function seekTo(ms: number) {
@@ -252,6 +344,8 @@ export function seekTo(ms: number) {
     usePlayer.setState({ positionMs: ms })
     return
   }
+  cancelCrossfade()
+  applyVolume()
   el.currentTime = Math.max(0, Math.min(el.duration - 0.25, ms / 1000))
   usePlayer.setState({ positionMs: el.currentTime * 1000 })
 }
@@ -308,8 +402,12 @@ export async function restoreQueue() {
 // Read-only handle for inspecting playback from DevTools.
 ;(window as unknown as { __aurora: unknown }).__aurora = {
   player: usePlayer,
+  settings: useSettings,
   elements,
   get active() {
     return active
+  },
+  get graph() {
+    return graph
   },
 }
