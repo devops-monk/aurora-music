@@ -4,6 +4,29 @@ import { appendUnique, insertNext, move, removeAt, shuffled, unshuffled } from '
 
 export type PlayerPane = 'main' | 'lyrics' | 'queue'
 
+/**
+ * While in a Listen Together party, user actions become party controls instead
+ * of local changes; the local queue then follows whatever the server says.
+ */
+export interface RemoteControl {
+  playSongs(songs: Song[], startIndex: number): void
+  playRadio(song: Song): void
+  jumpTo(index: number): void
+  /** [auto]: the track ended by itself (every device in the party sees that at once). */
+  next(auto: boolean): void
+  previous(): void
+  playNext(song: Song): void
+  addToQueue(song: Song): void
+  removeAt(index: number): void
+  setUpcoming(upcoming: Song[]): void
+  appendRadio(songs: Song[]): void
+}
+
+let remote: RemoteControl | null = null
+export const setRemoteControl = (r: RemoteControl | null) => {
+  remote = r
+}
+
 export interface PlayOptions {
   /** "Playing from …" caption above Now Playing. */
   source?: string | null
@@ -84,6 +107,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
 
   playSongs(songs, startIndex = 0, options = {}) {
     if (!songs.length) return
+    if (remote) return remote.playSongs(songs, Math.min(Math.max(0, startIndex), songs.length - 1))
     let queue = { songs, index: Math.min(Math.max(0, startIndex), songs.length - 1) }
     let original: Song[] | null = null
     if (options.shuffle) {
@@ -105,6 +129,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   },
 
   playRadio(song, source = null) {
+    if (remote) return remote.playRadio(song)
     set((s) => ({
       songs: [song],
       index: 0,
@@ -120,12 +145,14 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   },
 
   playNext(song) {
+    if (remote) return remote.playNext(song)
     const s = get()
     if (!s.songs.length) return s.playRadio(song)
     set(insertNext(s, song))
   },
 
   addToQueue(song) {
+    if (remote) return remote.addToQueue(song)
     const s = get()
     if (!s.songs.length) return s.playRadio(song)
     set({ songs: [...s.songs, song] })
@@ -134,11 +161,13 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   jumpTo(index) {
     const s = get()
     if (index < 0 || index >= s.songs.length) return
+    if (remote) return remote.jumpTo(index)
     set({ index, positionMs: 0, durationMs: 0, error: null, playToken: s.playToken + 1 })
   },
 
   next(auto = false) {
     const s = get()
+    if (remote) return remote.next(auto)
     if (auto && s.repeat === 'one') return set({ positionMs: 0, playToken: s.playToken + 1 })
     if (s.index + 1 < s.songs.length) return s.jumpTo(s.index + 1)
     if (s.repeat === 'all' && s.songs.length) return s.jumpTo(0)
@@ -147,19 +176,23 @@ export const usePlayer = create<PlayerState>((set, get) => ({
 
   previous() {
     const s = get()
+    if (remote) return remote.previous()
     if (s.index > 0) s.jumpTo(s.index - 1)
     else set({ positionMs: 0, playToken: s.playToken + 1 })
   },
 
   removeAt(index) {
+    if (remote) return remote.removeAt(index)
     set(removeAt(get(), index))
   },
 
   move(from, to) {
+    if (remote) return remote.setUpcoming(move(get(), from, to).songs.slice(get().index + 1))
     set(move(get(), from, to))
   },
 
   reorderUpcoming(upcoming) {
+    if (remote) return remote.setUpcoming(upcoming)
     const s = get()
     set({ songs: [...s.songs.slice(0, s.index + 1), ...upcoming] })
   },
@@ -176,6 +209,7 @@ export const usePlayer = create<PlayerState>((set, get) => ({
   },
 
   appendRadio(songs, playlistId) {
+    if (remote) return remote.appendRadio(songs)
     const s = get()
     const next = appendUnique(s, songs)
     set({

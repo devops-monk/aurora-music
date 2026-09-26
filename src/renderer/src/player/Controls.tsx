@@ -7,6 +7,7 @@ import {
   HeartIcon,
   LyricsIcon,
   MoreIcon,
+  PeopleIcon,
   NextGlyph,
   PauseGlyph,
   PlayGlyph,
@@ -16,6 +17,8 @@ import {
   VolumeUpIcon,
 } from '../components/Icons'
 import { openSongMenu, toggleLike } from '../lib/actions'
+import { useUi } from '../store/ui'
+import { useParty, inParty } from '../store/party'
 
 /**
  * `ThinSlider` from PlayerControls.kt: a hairline track that thickens under
@@ -182,6 +185,7 @@ export function PlayerActionRow() {
   const pane = usePlayer((s) => s.pane)
   const song = usePlayer((s) => s.current())
   const liked = usePlayer((s) => (song ? !!s.liked[song.videoId] : false))
+  const partying = useParty((p) => inParty(p))
   if (!song) return null
   return (
     <div className="player-action-row">
@@ -193,6 +197,16 @@ export function PlayerActionRow() {
       </CircleGlyph>
       <CircleGlyph label="Queue" active={pane === 'queue'} onClick={() => usePlayer.getState().setPane('queue')}>
         <QueueIcon size={19} />
+      </CircleGlyph>
+      <CircleGlyph
+        label="Listen Together"
+        active={partying}
+        onClick={() => {
+          usePlayer.getState().closeNowPlaying()
+          useUi.getState().push({ kind: 'party' })
+        }}
+      >
+        <PeopleIcon size={19} />
       </CircleGlyph>
       <CircleGlyph
         label="More"

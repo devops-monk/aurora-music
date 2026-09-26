@@ -39,6 +39,14 @@ const METHODS = [
   'localSongs',
   'addLocalFolder',
   'removeLocalFolder',
+  'partyView',
+  'partyCreate',
+  'partyJoin',
+  'partyLeave',
+  'partyControl',
+  'partyReport',
+  'partyProbe',
+  'partyDefaultServer',
   'updatePresence',
   'discordStatus',
   'scrobbleStatus',
@@ -69,6 +77,7 @@ const api = {
   onMediaKey: (cb) => subscribe('aurora:media-key', cb),
   onFullscreen: (cb) => subscribe('aurora:fullscreen', cb),
   onDownloads: (cb) => subscribe('aurora:downloads', cb),
+  onParty: (cb) => subscribe('aurora:party', cb),
 } as AuroraApi
 
 contextBridge.exposeInMainWorld('aurora', api)

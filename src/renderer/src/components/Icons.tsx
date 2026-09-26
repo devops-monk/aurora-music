@@ -156,6 +156,12 @@ export const FolderIcon = (p: IconProps) => (
   </Stroke>
 )
 
+export const PeopleIcon = (p: IconProps) => (
+  <Stroke {...p} strokeWidth={2}>
+    <path d="M9 11.2a3.2 3.2 0 1 0 0-6.4 3.2 3.2 0 0 0 0 6.4ZM3 19.5c.6-3 3-4.8 6-4.8s5.4 1.8 6 4.8M16 5a3 3 0 0 1 0 6M18 14.8c1.7.6 2.8 2.2 3.1 4.4" />
+  </Stroke>
+)
+
 export const ClockIcon = (p: IconProps) => (
   <Stroke {...p}>
     <path d="M3.4 12a8.6 8.6 0 1 1 17.2 0a8.6 8.6 0 1 1-17.2 0M12 7.4V12l3.4 1.8" />

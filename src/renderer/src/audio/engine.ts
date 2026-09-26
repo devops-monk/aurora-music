@@ -320,7 +320,40 @@ useSettings.subscribe((s, prev) => {
 
 // ---- controls -----------------------------------------------------------------
 
+/** While in a party, transport controls are sent to the party instead of acting locally. */
+export interface TransportRemote {
+  play(positionMs: number): void
+  pause(positionMs: number): void
+  seek(positionMs: number): void
+}
+let transportRemote: TransportRemote | null = null
+export const setTransportRemote = (r: TransportRemote | null) => {
+  transportRemote = r
+}
+
+/** Local-only primitives, for the party follower to bring this device in line. */
+export const local = {
+  isLoaded: (videoId: string) => loadedVideoId === videoId && cur().readyState >= HTMLMediaElement.HAVE_CURRENT_DATA,
+  isPaused: () => cur().paused,
+  play() {
+    ensureGraph()
+    cur().play().catch(() => undefined)
+  },
+  pause() {
+    cancelCrossfade()
+    cur().pause()
+  },
+  seek(ms: number) {
+    localSeek(ms)
+  },
+}
+
 export function togglePlay() {
+  if (transportRemote) {
+    if (cur().paused) transportRemote.play(getPositionMs())
+    else transportRemote.pause(getPositionMs())
+    return
+  }
   const s = usePlayer.getState()
   const song = s.current()
   if (!song) return
@@ -339,6 +372,11 @@ export function togglePlay() {
 }
 
 export function seekTo(ms: number) {
+  if (transportRemote) return transportRemote.seek(Math.max(0, ms))
+  localSeek(ms)
+}
+
+function localSeek(ms: number) {
   const el = cur()
   if (!Number.isFinite(el.duration)) {
     pendingSeekMs = ms

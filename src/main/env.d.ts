@@ -6,4 +6,6 @@ interface ImportMetaEnv {
   readonly MAIN_VITE_LASTFM_SECRET?: string
   /** Discord Application id for Rich Presence; Settings can override it. */
   readonly MAIN_VITE_DISCORD_CLIENT_ID?: string
+  /** Default Listen Together server, e.g. https://party.example.com */
+  readonly MAIN_VITE_PARTY_SERVER?: string
 }

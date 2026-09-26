@@ -30,6 +30,8 @@ export interface Settings {
   eqPreset: string
   /** Folders scanned for Local Music. */
   localFolders: string[]
+  /** Listen Together server, e.g. https://party.example.com; empty uses the built-in default. */
+  partyServer: string
   discordEnabled: boolean
   /** A Discord Application id; empty uses the one built in, if any. */
   discordClientId: string
@@ -50,7 +52,84 @@ export const DEFAULT_SETTINGS: Settings = {
   localFolders: [],
   discordEnabled: true,
   discordClientId: '',
+  partyServer: '',
 }
+
+// ---- Listen Together (BitChord party-server protocol) ----------------------
+
+export interface PartyTrack {
+  videoId: string
+  title: string
+  artist: string
+  thumbnailUrl?: string
+  durationMs?: number
+  fromAutoplay?: boolean
+}
+
+export interface PartyPlayback {
+  track: PartyTrack | null
+  queueIndex: number
+  isPlaying: boolean
+  positionMs: number
+  /** Server instant at which positionMs was true. */
+  anchorMs: number
+  seq: number
+  queueSeq: number
+  queueLength?: number
+  updatedBy: string | null
+  startedBy: string | null
+  startedByName: string | null
+  autoplayEnabled?: boolean
+}
+
+export interface PartyQueue {
+  seq: number
+  index: number
+  items: PartyTrack[]
+}
+
+export interface PartyMember {
+  memberId: string
+  userId: string
+  displayName: string
+  avatarUrl?: string
+  isHost: boolean
+  connected: boolean
+}
+
+export interface PartyView {
+  status: 'idle' | 'connecting' | 'connected' | 'reconnecting'
+  code?: string
+  you?: PartyMember
+  members: PartyMember[]
+  maxMembers: number
+  hostOnlyControl: boolean
+  playback?: PartyPlayback
+  queue?: PartyQueue
+  /** serverNow = Date.now() + offsetMs */
+  offsetMs: number
+  rttMs?: number
+  error?: string
+}
+
+export interface PartyIdentity {
+  userId: string
+  displayName: string
+  avatarUrl?: string | null
+}
+
+export type PartyControl =
+  | { action: 'play'; positionMs?: number }
+  | { action: 'pause'; positionMs?: number }
+  | { action: 'seek'; positionMs: number }
+  | { action: 'setTrack'; track: PartyTrack; positionMs?: number; isPlaying?: boolean; queueIndex?: number }
+  | { action: 'setQueue'; queue: PartyTrack[]; queueIndex: number }
+  | { action: 'queueAdd'; tracks: PartyTrack[]; playNext?: boolean }
+  | { action: 'queueRemove'; videoId: string }
+  | { action: 'queueMove'; fromIndex: number; toIndex: number; videoId?: string }
+  | { action: 'next' }
+  | { action: 'previous' }
+  | { action: 'setHostOnlyControl'; enabled: boolean }
 
 export interface PresenceUpdate {
   song: Song
@@ -120,6 +199,16 @@ export interface AuroraApi {
   /** Opens a folder picker; resolves to the new folder list. */
   addLocalFolder(): Promise<string[]>
   removeLocalFolder(path: string): Promise<string[]>
+
+  partyView(): Promise<PartyView>
+  partyCreate(who: PartyIdentity): Promise<PartyView>
+  partyJoin(code: string, who: PartyIdentity): Promise<PartyView>
+  partyLeave(): Promise<void>
+  partyControl(control: PartyControl): Promise<void>
+  partyReport(positionMs: number, isPlaying: boolean): Promise<void>
+  partyProbe(address: string): Promise<boolean>
+  partyDefaultServer(): Promise<string>
+  onParty(cb: (view: PartyView) => void): () => void
 
   updatePresence(update: PresenceUpdate | null): Promise<void>
   discordStatus(): Promise<{ connected: boolean; builtInId: boolean }>

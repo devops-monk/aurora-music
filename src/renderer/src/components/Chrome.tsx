@@ -15,9 +15,11 @@ import {
   MiniNext,
   MiniPause,
   MiniPlay,
+  PeopleIcon,
   PersonIcon,
   SearchIcon,
 } from './Icons'
+import { inParty, useParty } from '../store/party'
 import { AppMark } from './AppMark'
 
 const spring = { type: 'spring' as const, stiffness: 520, damping: 42, mass: 0.9 }
@@ -55,6 +57,7 @@ export function TopBar({ title, overArtwork }: { title?: string; overArtwork?: b
         {title}
       </div>
       <div className="top-bar-trailing">
+        <PartyPill />
         {page?.kind !== 'settings' && (
           <button
             className="glass-circle no-drag"
@@ -74,6 +77,20 @@ export function TopBar({ title, overArtwork }: { title?: string; overArtwork?: b
         </button>
       </div>
     </header>
+  )
+}
+
+/** Shown while in a party: the code, and a way back to the party page. */
+function PartyPill() {
+  const code = useParty((p) => (inParty(p) ? p.code : null))
+  const status = useParty((p) => p.status)
+  if (!code) return null
+  return (
+    <button className="glass-capsule party-pill no-drag" onClick={() => useUi.getState().push({ kind: 'party' })} title="Listen Together">
+      <span className={`party-dot is-${status}`} />
+      <PeopleIcon size={16} />
+      <span>{code}</span>
+    </button>
   )
 }
 

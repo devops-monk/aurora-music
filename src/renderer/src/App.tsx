@@ -18,6 +18,8 @@ import { SettingsScreen } from './screens/SettingsScreen'
 import { EqualizerScreen } from './screens/EqualizerScreen'
 import { DownloadsScreen, LocalMusicScreen } from './screens/OfflineScreens'
 import { startDownloadsSync } from './store/downloads'
+import { ListenTogetherScreen } from './screens/ListenTogetherScreen'
+import { startPartySync } from './audio/party'
 import { NowPlaying } from './player/NowPlaying'
 
 function Root({ tab }: { tab: Tab }) {
@@ -48,6 +50,8 @@ function PageView({ page }: { page: Page }) {
       return <DownloadsScreen />
     case 'local':
       return <LocalMusicScreen />
+    case 'party':
+      return <ListenTogetherScreen />
   }
 }
 
@@ -59,6 +63,7 @@ function pageTitle(tab: Tab, page: Page | null) {
   if (page.kind === 'equalizer') return 'Equalizer'
   if (page.kind === 'downloads') return 'Downloads'
   if (page.kind === 'local') return 'Local Music'
+  if (page.kind === 'party') return 'Listen Together'
   return page.title ?? ''
 }
 
@@ -121,7 +126,12 @@ export function App() {
     useSettings.getState().load().then(() => usePlayer.getState().setVolume(useSettings.getState().volume))
     loadAccount()
     restoreQueue()
-    return startDownloadsSync()
+    const stopDownloads = startDownloadsSync()
+    const stopParty = startPartySync()
+    return () => {
+      stopDownloads()
+      stopParty()
+    }
   }, [])
 
   // Persist the volume, but not on every pixel of a drag.

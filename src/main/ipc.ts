@@ -12,7 +12,8 @@ import { isLocalId } from '@shared/models'
 import { localSongs } from './local'
 import * as scrobbler from './scrobble'
 import { buildClientId, discordConnected, refreshPresence, updatePresence } from './discord'
-import type { PresenceUpdate } from '@shared/api'
+import type { PartyControl, PartyIdentity, PresenceUpdate } from '@shared/api'
+import * as party from './party'
 
 /**
  * The one table of what the renderer may ask for. Every channel is
@@ -84,6 +85,14 @@ export function registerIpc(getWindow: () => BrowserWindow | null) {
       await localSongs(true)
       return folders
     },
+    partyView: () => party.partyView(),
+    partyCreate: (who: PartyIdentity) => party.createParty(who),
+    partyJoin: (code: string, who: PartyIdentity) => party.joinParty(code, who),
+    partyLeave: () => party.leaveParty(),
+    partyControl: (control: PartyControl) => party.partyControl(control),
+    partyReport: (positionMs: number, isPlaying: boolean) => party.partyReport(positionMs, isPlaying),
+    partyProbe: (address: string) => party.probeServer(address),
+    partyDefaultServer: () => party.defaultServer(),
     updatePresence: (update: PresenceUpdate | null) => updatePresence(update),
     discordStatus: () => ({ connected: discordConnected(), builtInId: !!buildClientId() }),
     scrobbleStatus: () => scrobbler.status(),

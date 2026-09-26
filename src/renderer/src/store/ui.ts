@@ -11,6 +11,7 @@ export type Page =
   | { kind: 'equalizer' }
   | { kind: 'downloads' }
   | { kind: 'local' }
+  | { kind: 'party' }
 
 export interface ContextMenuState {
   x: number
