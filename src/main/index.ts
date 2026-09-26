@@ -55,7 +55,13 @@ function createWindow() {
     },
   })
 
-  win.once('ready-to-show', () => win.show())
+  win.once('ready-to-show', () => {
+    // Automated UI checks run a second copy that must not land on the user's screen.
+    if (process.env.AURORA_TEST_OFFSCREEN) {
+      win.setPosition(-5000, 0)
+      win.showInactive()
+    } else win.show()
+  })
   win.on('enter-full-screen', () => win.webContents.send('aurora:fullscreen', true))
   win.on('leave-full-screen', () => win.webContents.send('aurora:fullscreen', false))
 

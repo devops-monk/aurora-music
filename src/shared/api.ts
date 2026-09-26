@@ -15,6 +15,8 @@ import type {
 } from './models'
 
 export interface Settings {
+  /** App language, e.g. 'fr'; '' follows the system. */
+  language: string
   theme: 'system' | 'dark' | 'light'
   reduceAnimation: boolean
   audioQuality: 'high' | 'low'
@@ -32,12 +34,15 @@ export interface Settings {
   localFolders: string[]
   /** Listen Together server, e.g. https://party.example.com; empty uses the built-in default. */
   partyServer: string
+  /** Language lyrics translate into ('' = the app's language). */
+  lyricsTranslateTo: string
   discordEnabled: boolean
   /** A Discord Application id; empty uses the one built in, if any. */
   discordClientId: string
 }
 
 export const DEFAULT_SETTINGS: Settings = {
+  language: '',
   theme: 'system',
   reduceAnimation: false,
   audioQuality: 'high',
@@ -53,6 +58,7 @@ export const DEFAULT_SETTINGS: Settings = {
   discordEnabled: true,
   discordClientId: '',
   partyServer: '',
+  lyricsTranslateTo: '',
 }
 
 // ---- Listen Together (BitChord party-server protocol) ----------------------
@@ -130,6 +136,15 @@ export type PartyControl =
   | { action: 'next' }
   | { action: 'previous' }
   | { action: 'setHostOnlyControl'; enabled: boolean }
+
+export interface LyricsTranslation {
+  /** One entry per original line; blank where the original is blank. */
+  lines: string[]
+  sourceLanguage: string
+  targetLanguage: string
+  /** The lyrics are already in the target language. */
+  sameLanguage: boolean
+}
 
 // ---- Replay (monthly listening stats) --------------------------------------------
 
@@ -243,6 +258,8 @@ export interface AuroraApi {
   partyProbe(address: string): Promise<boolean>
   partyDefaultServer(): Promise<string>
   onParty(cb: (view: PartyView) => void): () => void
+
+  translateLyrics(videoId: string, lines: string[], target: string): Promise<LyricsTranslation>
 
   recordPlay(play: PlayRecord): Promise<void>
   replay(month?: string): Promise<ReplayMonth>

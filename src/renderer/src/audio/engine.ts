@@ -293,8 +293,11 @@ usePlayer.subscribe((state, prev) => {
       crossfadeTo = null
       startCrossfade(song)
     } else if (song.videoId === loadedVideoId && state.positionMs === 0 && prev.playToken !== state.playToken) {
-      // Same track asked for again (repeat-one, "previous" at the start): restart it.
+      // Same track asked for again (repeat-one, "previous" at the start, choosing
+      // the playing song): restart it. The play request cleared the duration, and no
+      // new metadata will arrive to set it, so restore it from the element.
       cur().currentTime = 0
+      if (Number.isFinite(cur().duration)) usePlayer.setState({ durationMs: cur().duration * 1000 })
       cur().play().catch(() => undefined)
     } else {
       load(song, true)

@@ -2475,3 +2475,66 @@ img {
     align-items: flex-start;
   }
 }
+
+/* ---- lyrics translation ---------------------------------------------------------------- */
+
+.lyrics-wrap {
+  position: relative;
+  height: 100%;
+}
+.lyrics-translate {
+  position: absolute;
+  z-index: 2;
+  top: 12px;
+  right: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 30px;
+  padding: 0 12px;
+  border-radius: 999px;
+  font: 600 13px/1 var(--font);
+  color: #fff;
+  background: rgba(255, 255, 255, 0.14);
+  -webkit-backdrop-filter: blur(12px);
+  backdrop-filter: blur(12px);
+  transition: background var(--t-fast);
+}
+.lyrics-translate:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.lyrics-translate.is-on {
+  background: #fff;
+  color: #000;
+}
+.lyrics-translate-glyph {
+  font: 700 12px/1 var(--font);
+  letter-spacing: -0.5px;
+}
+.lyric-translation {
+  display: block;
+  margin-top: 6px;
+  font: 600 clamp(16px, 1.5vw, 21px) / 1.3 var(--font);
+  letter-spacing: -0.2px;
+  color: rgba(255, 255, 255, 0.5);
+  /* Never part of the word sweep: it lights with the whole line. */
+  background: none !important;
+  -webkit-text-fill-color: currentColor;
+}
+.lyric-line.is-active .lyric-translation {
+  color: rgba(255, 255, 255, 0.78);
+}
+.lyric-line.is-plain .lyric-translation {
+  font-size: 18px;
+}
+.settings-select {
+  height: 32px;
+  max-width: 240px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--on-bg);
+  font: var(--body-medium);
+  outline: none;
+}

@@ -1,4 +1,7 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
+import type { LyricsTranslation } from '@shared/api'
+import { languageName, lyricsTarget } from '../lib/lang'
+import { useUi } from '../store/ui'
 import { useQuery } from '@tanstack/react-query'
 import type { LyricLine, Song } from '@shared/models'
 import { activeLineIndex } from '@shared/lyrics'
@@ -19,6 +22,50 @@ import { Spinner } from '../components/Common'
 const ANCHOR = 0.3
 const USER_SCROLL_HOLD_MS = 3500
 
+/**
+ * The translation, fetched when switched on and cleared when the song changes.
+ * If the lyrics are already in the target language, it says so and stays off.
+ */
+function useTranslation(song: Song, lines: LyricLine[] | undefined) {
+  const [on, setOn] = useState(false)
+  const [busy, setBusy] = useState(false)
+  const [translation, setTranslation] = useState<LyricsTranslation | null>(null)
+  useEffect(() => {
+    setTranslation(null)
+    if (!on || !lines?.length) return
+    let alive = true
+    setBusy(true)
+    window.aurora
+      .translateLyrics(song.videoId, lines.map((l) => l.text), lyricsTarget())
+      .then((t) => {
+        if (!alive) return
+        if (t.sameLanguage) {
+          useUi.getState().showToast(`These lyrics are already in ${languageName(t.targetLanguage)}`)
+          setOn(false)
+        } else setTranslation(t)
+      })
+      .catch(() => {
+        if (!alive) return
+        useUi.getState().showToast('Translation is unavailable right now')
+        setOn(false)
+      })
+      .finally(() => alive && setBusy(false))
+    return () => {
+      alive = false
+    }
+  }, [on, song.videoId, lines])
+  return { on, setOn, busy, translation }
+}
+
+function TranslateButton({ on, busy, onToggle }: { on: boolean; busy: boolean; onToggle: () => void }) {
+  return (
+    <button className={`lyrics-translate ${on ? 'is-on' : ''}`} onClick={onToggle} title={on ? 'Show original' : `Translate to ${languageName(lyricsTarget())}`}>
+      {busy ? <Spinner size={14} /> : <span className="lyrics-translate-glyph">文A</span>}
+      <span>{on ? 'Original' : 'Translate'}</span>
+    </button>
+  )
+}
+
 export function Lyrics({ song }: { song: Song }) {
   const durationMs = usePlayer((s) => s.durationMs)
   const q = useQuery({
@@ -27,24 +74,35 @@ export function Lyrics({ song }: { song: Song }) {
     staleTime: Infinity,
     enabled: durationMs > 0,
   })
+  const tr = useTranslation(song, q.data?.lines)
+  const toggle = () => tr.setOn((v) => !v)
 
   if (q.isPending) return <div className="lyrics-state"><Spinner size={28} /></div>
   if (!q.data || !q.data.lines.length) return <div className="lyrics-state">No lyrics for this song.</div>
   if (!q.data.synced)
     return (
-      <div className="lyrics-scroll is-plain">
-        {q.data.lines.map((l, i) => (
-          <p key={i} className="lyric-line is-plain">
-            {l.text}
-          </p>
-        ))}
-        <div className="lyrics-source">Lyrics from {q.data.source}</div>
+      <div className="lyrics-wrap">
+        <TranslateButton on={tr.on} busy={tr.busy} onToggle={toggle} />
+        <div className="lyrics-scroll is-plain">
+          {q.data.lines.map((l, i) => (
+            <p key={i} className="lyric-line is-plain">
+              {l.text}
+              {tr.translation?.lines[i] && <span className="lyric-translation">{tr.translation.lines[i]}</span>}
+            </p>
+          ))}
+          <div className="lyrics-source">Lyrics from {q.data.source}</div>
+        </div>
       </div>
     )
-  return <SyncedLyrics lines={q.data.lines} source={q.data.source} />
+  return (
+    <div className="lyrics-wrap">
+      <TranslateButton on={tr.on} busy={tr.busy} onToggle={toggle} />
+      <SyncedLyrics lines={q.data.lines} source={q.data.source} translated={tr.translation?.lines} />
+    </div>
+  )
 }
 
-function SyncedLyrics({ lines, source }: { lines: LyricLine[]; source: string }) {
+function SyncedLyrics({ lines, source, translated }: { lines: LyricLine[]; source: string; translated?: string[] }) {
   const paneRef = useRef<HTMLDivElement>(null)
   const listRef = useRef<HTMLDivElement>(null)
   const lineRefs = useRef<(HTMLDivElement | null)[]>([])
@@ -144,6 +202,7 @@ function SyncedLyrics({ lines, source }: { lines: LyricLine[]; source: string })
               ) : (
                 line.text
               )}
+              {translated?.[i] && <span className="lyric-translation">{translated[i]}</span>}
             </div>
           )
         })}

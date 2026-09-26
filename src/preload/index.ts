@@ -47,6 +47,7 @@ const METHODS = [
   'partyReport',
   'partyProbe',
   'partyDefaultServer',
+  'translateLyrics',
   'recordPlay',
   'replay',
   'replayMonths',

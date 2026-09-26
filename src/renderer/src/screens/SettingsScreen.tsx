@@ -7,6 +7,7 @@ import { ChevronRightIcon, PersonIcon } from '../components/Icons'
 import { useSettings } from '../store/settings'
 import { useUi } from '../store/ui'
 import { signIn, signOut } from '../lib/account'
+import { appLanguage, languageName, TRANSLATION_LANGUAGES } from '../lib/lang'
 
 /** `SettingsSheet.kt`, as a page: grouped inset lists in the iOS settings style. */
 export function SettingsScreen() {
@@ -106,7 +107,20 @@ export function SettingsScreen() {
 
         <Discord />
 
-        <Group title="Lyrics" footer="Sources are tried in order; the first synced result wins.">
+        <Group title="Lyrics" footer="Sources are tried in order; the first synced result wins. Translate from the lyrics view.">
+          <div className="settings-row">
+            <div className="settings-row-text">
+              <div className="settings-row-title">Translate lyrics into</div>
+            </div>
+            <select className="settings-select" value={s.lyricsTranslateTo} onChange={(e) => s.update({ lyricsTranslateTo: e.target.value })}>
+              <option value="">App language ({languageName(appLanguage())})</option>
+              {TRANSLATION_LANGUAGES.map((code) => (
+                <option key={code} value={code}>
+                  {languageName(code)}
+                </option>
+              ))}
+            </select>
+          </div>
           {s.lyricsSources.map((source, i) => (
             <div className="settings-row" key={source}>
               <div className="settings-row-text">
