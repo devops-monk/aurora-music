@@ -20,11 +20,21 @@ export function shouldScrobble(listenedMs: number, durationMs: number): boolean 
 
 let current: { song: Song; startedAt: number; listened: number; lastPos: number; done: boolean; announced: boolean } | null = null
 
+/** Replay: the time actually heard is recorded as one play when a track stops being current. */
+function flush() {
+  if (current && current.listened > 0) {
+    window.aurora.recordPlay({ song: current.song, startedAt: current.startedAt, ms: current.listened }).catch(() => undefined)
+  }
+}
+
 function begin(song: Song) {
+  flush()
   current = { song, startedAt: Date.now(), listened: 0, lastPos: getPositionMs(), done: false, announced: false }
 }
 
-setInterval(() => {
+if (typeof window !== 'undefined') window.addEventListener('beforeunload', flush)
+
+if (typeof window !== 'undefined') setInterval(() => {
   const s = usePlayer.getState()
   const song = s.current()
   if (!song) return

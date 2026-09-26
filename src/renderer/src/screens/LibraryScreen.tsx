@@ -7,6 +7,28 @@ import { useUi } from '../store/ui'
 import { signIn } from '../lib/account'
 import { DownloadIcon, FolderIcon } from '../components/Icons'
 import { useDownloads } from '../store/downloads'
+import { ChevronRightIcon } from '../components/Icons'
+import { monthLabel } from './ReplayScreen'
+
+/** `ReplayBanner` from LibraryScreen.kt: this month's minutes, opening Replay. */
+function ReplayBanner() {
+  const q = useQuery({ queryKey: ['replay', 'banner'], queryFn: () => window.aurora.replay(), staleTime: 60_000 })
+  const data = q.data
+  return (
+    <button className="replay-banner" onClick={() => useUi.getState().push({ kind: 'replay' })}>
+      <div className="replay-banner-mark">R</div>
+      <div className="replay-banner-text">
+        <b>Your Replay</b>
+        <span>
+          {data && data.plays > 0
+            ? `${data.minutes.toLocaleString()} minutes in ${monthLabel(data.month, false)} · top song: ${data.topSongs[0]?.title ?? ''}`
+            : 'Your month in music, counted as you listen'}
+        </span>
+      </div>
+      <ChevronRightIcon size={20} />
+    </button>
+  )
+}
 
 /** `ServiceCard` from HomeScreen.kt: a gradient tile for an on-device collection. */
 function ServiceCard({ title, subtitle, colors, icon, onClick }: { title: string; subtitle: string; colors: [string, string]; icon: React.ReactNode; onClick: () => void }) {
@@ -80,6 +102,7 @@ export function LibraryScreen() {
   return (
     <PageScroll id="library">
       <h1 className="page-title">Library</h1>
+      <ReplayBanner />
       <OnThisComputer />
       {!accountLoaded ? null : !account ? (
         <MessageState

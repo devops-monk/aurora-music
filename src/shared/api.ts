@@ -131,6 +131,40 @@ export type PartyControl =
   | { action: 'previous' }
   | { action: 'setHostOnlyControl'; enabled: boolean }
 
+// ---- Replay (monthly listening stats) --------------------------------------------
+
+export interface PlayRecord {
+  song: Song
+  startedAt: number
+  /** Milliseconds actually heard (seeks excluded). */
+  ms: number
+}
+
+export interface ReplayRank {
+  key: string
+  title: string
+  subtitle: string
+  thumbnailUrl: string | null
+  plays: number
+  minutes: number
+  song?: Song
+  browseId?: string | null
+}
+
+export interface ReplayMonth {
+  /** YYYY-MM */
+  month: string
+  minutes: number
+  plays: number
+  distinctSongs: number
+  distinctArtists: number
+  memberSince: number | null
+  perDayMinutes: number[]
+  topSongs: ReplayRank[]
+  topArtists: ReplayRank[]
+  topAlbums: ReplayRank[]
+}
+
 export interface PresenceUpdate {
   song: Song
   positionMs: number
@@ -209,6 +243,11 @@ export interface AuroraApi {
   partyProbe(address: string): Promise<boolean>
   partyDefaultServer(): Promise<string>
   onParty(cb: (view: PartyView) => void): () => void
+
+  recordPlay(play: PlayRecord): Promise<void>
+  replay(month?: string): Promise<ReplayMonth>
+  replayMonths(): Promise<string[]>
+  savePoster(dataUrl: string, month: string): Promise<boolean>
 
   updatePresence(update: PresenceUpdate | null): Promise<void>
   discordStatus(): Promise<{ connected: boolean; builtInId: boolean }>

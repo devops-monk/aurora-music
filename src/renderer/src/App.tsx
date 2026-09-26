@@ -19,6 +19,7 @@ import { EqualizerScreen } from './screens/EqualizerScreen'
 import { DownloadsScreen, LocalMusicScreen } from './screens/OfflineScreens'
 import { startDownloadsSync } from './store/downloads'
 import { ListenTogetherScreen } from './screens/ListenTogetherScreen'
+import { ReplayScreen } from './screens/ReplayScreen'
 import { startPartySync } from './audio/party'
 import { NowPlaying } from './player/NowPlaying'
 
@@ -52,6 +53,8 @@ function PageView({ page }: { page: Page }) {
       return <LocalMusicScreen />
     case 'party':
       return <ListenTogetherScreen />
+    case 'replay':
+      return <ReplayScreen />
   }
 }
 
@@ -64,6 +67,7 @@ function pageTitle(tab: Tab, page: Page | null) {
   if (page.kind === 'downloads') return 'Downloads'
   if (page.kind === 'local') return 'Local Music'
   if (page.kind === 'party') return 'Listen Together'
+  if (page.kind === 'replay') return 'Replay'
   return page.title ?? ''
 }
 

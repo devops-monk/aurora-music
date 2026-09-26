@@ -12,6 +12,7 @@ export type Page =
   | { kind: 'downloads' }
   | { kind: 'local' }
   | { kind: 'party' }
+  | { kind: 'replay' }
 
 export interface ContextMenuState {
   x: number
