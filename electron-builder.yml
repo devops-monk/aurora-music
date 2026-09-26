@@ -1,0 +1,56 @@
+appId: io.github.devopsmonk.auroramusic
+productName: Aurora Music
+copyright: Copyright © 2026 Abhay Pratap Singh. GPL-3.0-or-later.
+directories:
+  output: release/${version}
+  buildResources: build
+files:
+  - out/**
+  - resources/**
+  - build/icon.png
+  - package.json
+  - '!**/*.map'
+asarUnpack:
+  - resources/**
+publish:
+  provider: github
+  owner: devops-monk
+  repo: aurora-music
+
+mac:
+  category: public.app-category.music
+  target:
+    - target: dmg
+      arch: [universal]
+    - target: zip
+      arch: [universal]
+  hardenedRuntime: true
+  entitlements: build/entitlements.mac.plist
+  entitlementsInherit: build/entitlements.mac.plist
+  # Signs when CSC_LINK / CSC_KEY_PASSWORD are set.
+  notarize: false
+  artifactName: Aurora-Music-${version}-mac-${arch}.${ext}
+
+win:
+  target:
+    - target: nsis
+      arch: [x64, arm64]
+    - target: portable
+      arch: [x64]
+  artifactName: Aurora-Music-${version}-win-${arch}.${ext}
+nsis:
+  oneClick: false
+  perMachine: false
+  allowToChangeInstallationDirectory: true
+  shortcutName: Aurora Music
+
+linux:
+  category: AudioVideo;Audio;Player
+  target: [AppImage, deb, rpm]
+  artifactName: Aurora-Music-${version}-linux-${arch}.${ext}
+  maintainer: Abhay Pratap Singh
+  synopsis: An Apple Music-style YouTube Music client
+  desktop:
+    entry:
+      StartupWMClass: aurora-music
+      Keywords: music;youtube;player;

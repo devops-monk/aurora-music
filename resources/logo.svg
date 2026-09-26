@@ -1,0 +1,25 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1024" height="1024" viewBox="0 0 1024 1024">
+  <defs>
+    <linearGradient id="sky" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#0B1030"/>
+      <stop offset="1" stop-color="#1B0B2E"/>
+    </linearGradient>
+    <linearGradient id="a" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#2AF5B8"/>
+      <stop offset="1" stop-color="#2AF5B8" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="b" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#5B8CFF"/>
+      <stop offset="1" stop-color="#B06BFF" stop-opacity="0"/>
+    </linearGradient>
+    <linearGradient id="c" x1="0" y1="1" x2="0" y2="0">
+      <stop offset="0" stop-color="#FF5FA2"/>
+      <stop offset="1" stop-color="#FF5FA2" stop-opacity="0"/>
+    </linearGradient>
+  </defs>
+  <rect width="1024" height="1024" rx="228" fill="url(#sky)"/>
+  <path d="M236 800C236 560 300 360 360 200c40 170 50 380 30 600Z" fill="url(#a)"/>
+  <path d="M430 800c0-290 60-520 130-660 50 210 60 440 30 660Z" fill="url(#b)"/>
+  <path d="M640 800c-10-220 40-400 110-520 40 170 40 350 20 520Z" fill="url(#c)"/>
+  <rect x="196" y="784" width="632" height="40" rx="20" fill="#fff" opacity="0.92"/>
+</svg>

@@ -1,0 +1,94 @@
+/*
+ * Design tokens, straight from BitChord:
+ *   colours    ui/theme/Theme.kt (DarkColors / LightColors)
+ *   type scale ui/theme/Theme.kt (BitChordTypography)
+ *   geometry   ui/components/Common.kt, FrostedTopBar.kt, MiniPlayer.kt, DetailScreen.kt
+ * One dp is one CSS px.
+ */
+
+:root {
+  color-scheme: dark;
+
+  /* ---- colour (dark is the default, as on Android) ---- */
+  --primary: #ffffff;
+  --on-primary: #000000;
+  --bg: #000000;
+  --on-bg: #ffffff;
+  --surface: #0d0d0f;
+  --on-surface: #ffffff;
+  --surface-variant: #1c1c1e;
+  --on-surface-variant: #8e8e93;
+  --outline: #2c2c2e;
+  --accent-red: #fa2d48;
+  --thumb-border: rgba(255, 255, 255, 0.15);
+  --glass-fill: rgba(18, 18, 18, 0.45); /* LiquidGlass.kt: #121212 @ SURFACE_OPACITY */
+  --glass-stroke: rgba(255, 255, 255, 0.1);
+  --glass-highlight: rgba(255, 255, 255, 0.08);
+  --indicator: rgba(255, 255, 255, 0.14);
+  --hover: rgba(255, 255, 255, 0.06);
+  --pressed: rgba(255, 255, 255, 0.1);
+  --scrim: rgba(0, 0, 0, 0.55);
+
+  /* ---- type (SF Pro Display on macOS, Inter elsewhere) ---- */
+  --font: -apple-system, BlinkMacSystemFont, 'SF Pro Display', 'SF Pro Text', 'Inter Variable', 'Inter', system-ui, sans-serif;
+  --display-large: 800 34px/1.15 var(--font);
+  --display-large-ls: -0.8px;
+  --headline-large: 800 30px/1.15 var(--font);
+  --headline-large-ls: -0.7px;
+  --headline-medium: 700 22px/1.2 var(--font);
+  --headline-medium-ls: -0.4px;
+  --title-large: 700 20px/1.25 var(--font);
+  --title-large-ls: -0.3px;
+  --title-medium: 600 16px/1.3 var(--font);
+  --title-medium-ls: -0.2px;
+  --body-large: 400 16px/1.4 var(--font);
+  --body-medium: 400 14px/1.35 var(--font);
+  --label-medium: 600 12px/1.3 var(--font);
+  --label-small: 600 11px/1.3 var(--font);
+
+  /* ---- geometry ---- */
+  --gutter: 10px; /* PAGE_GUTTER */
+  --page-gutter: 28px; /* desktop pages get more air; bars keep --gutter */
+  --row-art: 52px;
+  --row-art-radius: 8px;
+  --card-width: 166px; /* SHELF_CARD_WIDTH, grown a notch for desktop */
+  --card-radius: 12px;
+  --hero-radius: 18px;
+  --hero-max: 320px;
+  --floating-bar-max: 440px; /* FLOATING_BAR_MAX_WIDTH */
+  --top-bar-h: 52px; /* TopBarContentHeight */
+  --title-bar-h: 44px; /* the OS window-control strip */
+  --sleeve-radius: 12px;
+
+  /* ---- motion ---- */
+  --ease-out: cubic-bezier(0.215, 0.61, 0.355, 1);
+  --ease-standard: cubic-bezier(0.2, 0, 0, 1);
+  --t-fast: 180ms;
+  --t-med: 260ms;
+}
+
+:root[data-theme='light'] {
+  color-scheme: light;
+  --primary: #000000;
+  --on-primary: #ffffff;
+  --bg: #ffffff;
+  --on-bg: #000000;
+  --surface: #f7f7f9;
+  --on-surface: #000000;
+  --surface-variant: #f2f2f7;
+  --on-surface-variant: #6e6e73;
+  --outline: #e5e5ea;
+  --thumb-border: rgba(0, 0, 0, 0.15);
+  --glass-fill: rgba(250, 250, 250, 0.55);
+  --glass-stroke: rgba(0, 0, 0, 0.08);
+  --glass-highlight: rgba(255, 255, 255, 0.6);
+  --indicator: rgba(0, 0, 0, 0.08);
+  --hover: rgba(0, 0, 0, 0.04);
+  --pressed: rgba(0, 0, 0, 0.08);
+  --scrim: rgba(0, 0, 0, 0.3);
+}
+
+:root[data-reduce-motion='true'] {
+  --t-fast: 0ms;
+  --t-med: 0ms;
+}

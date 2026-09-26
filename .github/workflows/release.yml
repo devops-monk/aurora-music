@@ -1,0 +1,104 @@
+name: Build & Release
+
+# Every push and PR: typecheck, test, and build installers for all three OSes
+# (downloadable from the run's artifacts).
+# A `v*` tag (or a manual run with a version): the same, then one GitHub
+# Release with every installer attached: macOS dmg/zip (universal), Windows
+# setup + portable (x64/arm64), Linux AppImage/deb/rpm, plus the latest*.yml
+# files electron-updater reads.
+
+on:
+  push:
+    branches: [main]
+    tags: ['v*']
+  pull_request:
+  workflow_dispatch:
+    inputs:
+      version:
+        description: 'Release tag to create, e.g. v0.1.1 (leave empty to only build)'
+        required: false
+
+permissions:
+  contents: write
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run typecheck
+      - run: npm test
+
+  package:
+    needs: test
+    strategy:
+      fail-fast: false
+      matrix:
+        include:
+          - os: macos-latest
+            platform: mac
+          - os: windows-latest
+            platform: win
+          - os: ubuntu-latest
+            platform: linux
+    runs-on: ${{ matrix.os }}
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Linux packaging tools
+        if: matrix.platform == 'linux'
+        run: sudo apt-get update && sudo apt-get install -y rpm libarchive-tools
+      - run: npm ci
+      - name: Set version from tag
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.version != ''
+        shell: bash
+        run: |
+          TAG="${{ inputs.version || github.ref_name }}"
+          npm version "${TAG#v}" --no-git-tag-version --allow-same-version
+      - run: npm run build
+      - name: Package (${{ matrix.platform }})
+        env:
+          # Signing is picked up automatically when these secrets exist; unsigned otherwise.
+          CSC_LINK: ${{ secrets.CSC_LINK }}
+          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.CSC_LINK != '' }}
+        run: npx electron-builder --${{ matrix.platform }} --publish never
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aurora-music-${{ matrix.platform }}
+          if-no-files-found: error
+          path: |
+            release/*/*.dmg
+            release/*/*.zip
+            release/*/*.exe
+            release/*/*.AppImage
+            release/*/*.deb
+            release/*/*.rpm
+            release/*/*.blockmap
+            release/*/latest*.yml
+
+  release:
+    needs: package
+    if: startsWith(github.ref, 'refs/tags/v') || inputs.version != ''
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/download-artifact@v4
+        with:
+          path: dist
+          merge-multiple: true
+      - name: List release files
+        run: find dist -type f | sort
+      - uses: softprops/action-gh-release@v2
+        with:
+          tag_name: ${{ inputs.version || github.ref_name }}
+          name: Aurora Music ${{ inputs.version || github.ref_name }}
+          generate_release_notes: true
+          files: dist/**/*
