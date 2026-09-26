@@ -68,3 +68,26 @@ export function saveCookie(cookie: string | null) {
   if (!safeStorage.isEncryptionAvailable()) return
   writeFileSync(file('session.bin'), safeStorage.encryptString(cookie))
 }
+
+/**
+ * Small credentials (scrobbler tokens), encrypted as one blob with the OS
+ * keychain, the same protection as the YouTube session.
+ */
+function readSecrets(): Record<string, string> {
+  try {
+    if (!safeStorage.isEncryptionAvailable()) return {}
+    return JSON.parse(safeStorage.decryptString(readFileSync(file('secrets.bin'))))
+  } catch {
+    return {}
+  }
+}
+
+export const getSecret = (name: string): string | null => readSecrets()[name] ?? null
+
+export function setSecret(name: string, value: string | null) {
+  if (!safeStorage.isEncryptionAvailable()) return
+  const all = readSecrets()
+  if (value) all[name] = value
+  else delete all[name]
+  writeFileSync(file('secrets.bin'), safeStorage.encryptString(JSON.stringify(all)))
+}

@@ -10,6 +10,7 @@ import { getSettings, loadQueue, saveQueue, setSettings } from './store'
 import { download, downloadedPath, downloads, removeDownload } from './downloads'
 import { isLocalId } from '@shared/models'
 import { localSongs } from './local'
+import * as scrobbler from './scrobble'
 
 /**
  * The one table of what the renderer may ask for. Every channel is
@@ -77,6 +78,13 @@ export function registerIpc(getWindow: () => BrowserWindow | null) {
       await localSongs(true)
       return folders
     },
+    scrobbleStatus: () => scrobbler.status(),
+    lastfmBeginAuth: () => scrobbler.lastfmBeginAuth(),
+    lastfmFinishAuth: () => scrobbler.lastfmFinishAuth(),
+    lastfmSignOut: () => scrobbler.lastfmSignOut(),
+    listenbrainzConnect: (token: string) => scrobbler.listenbrainzConnect(token),
+    nowPlaying: (song: Song, durationMs: number) => scrobbler.nowPlaying(song, durationMs),
+    scrobble: (song: Song, startedAt: number, durationMs: number) => scrobbler.scrobble(song, startedAt, durationMs),
     openExternal: (url: string) => {
       if (/^https:\/\//.test(url)) return shell.openExternal(url)
       return undefined

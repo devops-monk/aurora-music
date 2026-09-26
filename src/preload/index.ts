@@ -39,6 +39,13 @@ const METHODS = [
   'localSongs',
   'addLocalFolder',
   'removeLocalFolder',
+  'scrobbleStatus',
+  'lastfmBeginAuth',
+  'lastfmFinishAuth',
+  'lastfmSignOut',
+  'listenbrainzConnect',
+  'nowPlaying',
+  'scrobble',
 ] as const
 
 const invoke = Object.fromEntries(

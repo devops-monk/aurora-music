@@ -197,3 +197,8 @@ export function formatTime(ms: number): string {
   const s = total % 60
   return h > 0 ? `${h}:${String(m).padStart(2, '0')}:${String(s).padStart(2, '0')}` : `${m}:${String(s).padStart(2, '0')}`
 }
+
+/** Only the first credited artist, so "A, B & C" scrobbles as A (`PrimaryArtist.kt`). */
+export function primaryArtist(artist: string): string {
+  return artist.split(/\s*(?:,|&|\bx\b|\bfeat\.?|\bft\.?|\bwith\b)\s*/i)[0]?.trim() || artist
+}

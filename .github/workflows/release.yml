@@ -64,6 +64,10 @@ jobs:
           TAG="${{ inputs.version || github.ref_name }}"
           npm version "${TAG#v}" --no-git-tag-version --allow-same-version
       - run: npm run build
+        env:
+          # Optional: Last.fm scrobbling is offered only when these repository secrets exist.
+          MAIN_VITE_LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
+          MAIN_VITE_LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
       - name: Package (${{ matrix.platform }})
         shell: bash
         env:

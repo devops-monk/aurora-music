@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import { activeLineIndex, cleanQuery, parseLrc, parseTtml, ttmlTime } from './lyrics'
-import { durationMillis, formatTime } from './models'
+import { durationMillis, formatTime, primaryArtist } from './models'
 
 describe('parseLrc', () => {
   it('parses stamps with two- and three-digit fractions, sorted', () => {
@@ -87,6 +87,13 @@ describe('helpers', () => {
   it('cleans search noise but never to nothing', () => {
     expect(cleanQuery('Song (Official Video) [4K]')).toBe('Song')
     expect(cleanQuery('(Official Video)')).toBe('(Official Video)')
+  })
+
+  it('keeps only the primary artist for scrobbles', () => {
+    expect(primaryArtist('Daft Punk, Pharrell Williams')).toBe('Daft Punk')
+    expect(primaryArtist('Calvin Harris feat. Rihanna')).toBe('Calvin Harris')
+    expect(primaryArtist('Simon & Garfunkel')).toBe('Simon')
+    expect(primaryArtist('Maxwell')).toBe('Maxwell')
   })
 
   it('parses and formats durations', () => {

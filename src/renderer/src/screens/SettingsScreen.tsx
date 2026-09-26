@@ -1,4 +1,5 @@
-import type { ReactNode } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
+import type { ScrobbleStatus } from '@shared/api'
 import type { Settings } from '@shared/api'
 import { PageScroll } from '../components/PageScroll'
 import { AppMark } from '../components/AppMark'
@@ -100,6 +101,8 @@ export function SettingsScreen() {
             onClick={() => useUi.getState().push({ kind: 'equalizer' })}
           />
         </Group>
+
+        <Scrobbling />
 
         <Group title="Lyrics" footer="Sources are tried in order; the first synced result wins.">
           {s.lyricsSources.map((source, i) => (
@@ -223,5 +226,80 @@ function Segmented<T extends string>({
         ))}
       </div>
     </div>
+  )
+}
+
+/** `AccountAndScrobblingScreen.kt`: Last.fm (browser sign-in) and ListenBrainz (user token). */
+function Scrobbling() {
+  const [status, setStatus] = useState<ScrobbleStatus | null>(null)
+  const [waiting, setWaiting] = useState(false)
+  const [token, setToken] = useState('')
+  const [error, setError] = useState<string | null>(null)
+  useEffect(() => {
+    window.aurora.scrobbleStatus().then(setStatus)
+  }, [])
+  const run = async (fn: () => Promise<ScrobbleStatus | void>) => {
+    setError(null)
+    try {
+      const next = await fn()
+      if (next) setStatus(next)
+    } catch (e) {
+      setError(String((e as Error).message ?? e).replace(/^Error invoking remote method '[^']+': (Error: )?/, ''))
+    }
+  }
+  if (!status) return null
+  return (
+    <Group
+      title="Scrobbling"
+      footer={error ?? 'A song counts once you have listened to half of it, or four minutes.'}
+    >
+      {status.lastfmUser ? (
+        <Row title={`Last.fm · ${status.lastfmUser}`} subtitle="Scrobbling" onClick={() => run(() => window.aurora.lastfmSignOut())} destructive />
+      ) : waiting ? (
+        <Row
+          title="Finish Last.fm sign-in"
+          subtitle="Approve Aurora Music in your browser, then click here"
+          chevron
+          onClick={() => run(async () => {
+            const s = await window.aurora.lastfmFinishAuth()
+            setWaiting(false)
+            return s
+          })}
+        />
+      ) : (
+        <Row
+          title="Connect Last.fm"
+          subtitle={status.lastfmAvailable ? 'Opens Last.fm in your browser' : 'Not available in this build'}
+          chevron
+          onClick={() =>
+            status.lastfmAvailable &&
+            run(async () => {
+              await window.aurora.lastfmBeginAuth()
+              setWaiting(true)
+            })
+          }
+        />
+      )}
+      {status.listenbrainzConnected ? (
+        <Row title="ListenBrainz" subtitle="Connected · click to disconnect" destructive onClick={() => run(() => window.aurora.listenbrainzConnect(''))} />
+      ) : (
+        <form
+          className="settings-row"
+          onSubmit={(e) => {
+            e.preventDefault()
+            run(() => window.aurora.listenbrainzConnect(token))
+          }}
+        >
+          <div className="settings-row-text">
+            <div className="settings-row-title">ListenBrainz</div>
+            <div className="settings-row-subtitle">Paste your user token from listenbrainz.org/settings</div>
+          </div>
+          <input className="settings-input" type="password" value={token} placeholder="User token" onChange={(e) => setToken(e.target.value)} />
+          <button className="pill-button is-small" type="submit" disabled={!token.trim()}>
+            Connect
+          </button>
+        </form>
+      )}
+    </Group>
   )
 }

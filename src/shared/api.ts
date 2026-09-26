@@ -47,6 +47,13 @@ export const DEFAULT_SETTINGS: Settings = {
   localFolders: [],
 }
 
+export interface ScrobbleStatus {
+  /** Whether this build carries Last.fm API credentials. */
+  lastfmAvailable: boolean
+  lastfmUser: string | null
+  listenbrainzConnected: boolean
+}
+
 /** The queue as it is persisted between launches. */
 export interface SavedQueue {
   songs: Song[]
@@ -101,6 +108,14 @@ export interface AuroraApi {
   /** Opens a folder picker; resolves to the new folder list. */
   addLocalFolder(): Promise<string[]>
   removeLocalFolder(path: string): Promise<string[]>
+
+  scrobbleStatus(): Promise<ScrobbleStatus>
+  lastfmBeginAuth(): Promise<void>
+  lastfmFinishAuth(): Promise<ScrobbleStatus>
+  lastfmSignOut(): Promise<ScrobbleStatus>
+  listenbrainzConnect(token: string): Promise<ScrobbleStatus>
+  nowPlaying(song: Song, durationMs: number): Promise<void>
+  scrobble(song: Song, startedAt: number, durationMs: number): Promise<void>
 
   openExternal(url: string): Promise<void>
   /** Keeps the native Windows/Linux caption buttons legible on the current theme. */

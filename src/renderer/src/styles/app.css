@@ -2143,3 +2143,14 @@ img {
     radial-gradient(closest-side, var(--bg) 82%, transparent 84%),
     conic-gradient(var(--on-bg) calc(var(--p) * 360deg), var(--surface-variant) 0);
 }
+.settings-input {
+  width: 200px;
+  height: 32px;
+  padding: 0 10px;
+  border: 0;
+  border-radius: 8px;
+  background: var(--bg);
+  color: var(--on-bg);
+  outline: none;
+  font: var(--body-medium);
+}
