@@ -107,6 +107,19 @@ export function songOf(node: any, fallback: Partial<Song> = {}): Song | null {
 }
 
 /** A card-shaped item (MusicTwoRowItem, or a list item for an album/playlist/artist). */
+/**
+ * Signed-in "Music videos for you" lists some videos as episode pages
+ * (`MPED` + the video id), which browse to nothing. The card's play button
+ * holds the video id; failing that, the id is the rest of the browse id.
+ */
+function episodeVideoId(node: any, browseId: string | undefined): string | undefined {
+  if (!browseId?.startsWith('MPED')) return undefined
+  const overlay = node?.thumbnail_overlay?.content?.endpoint?.payload?.videoId
+  if (typeof overlay === 'string') return overlay
+  const rest = browseId.slice(4)
+  return /^[\w-]{11}$/.test(rest) ? rest : undefined
+}
+
 export function shelfItemOf(node: any): ShelfItem | null {
   if (!node) return null
   if (node.type === 'MusicResponsiveListItem' && (node.item_type === 'song' || node.item_type === 'video')) {
@@ -120,9 +133,10 @@ export function shelfItemOf(node: any): ShelfItem | null {
   const title = str(node.title) || str(node.name)
   const subtitle = str(node.subtitle) || artistLine(node.artists ?? node.authors)
   const thumbnailUrl = bestThumb(node)
-  if (payload.videoId) {
+  const videoId: string | undefined = payload.videoId ?? episodeVideoId(node, payload.browseId)
+  if (videoId) {
     const song: Song = {
-      videoId: payload.videoId,
+      videoId,
       title,
       artist: artistLine(node.artists ?? node.authors, subtitle.split(' • ').pop() ?? ''),
       artistId: node.artists?.[0]?.channel_id ?? null,
@@ -130,7 +144,7 @@ export function shelfItemOf(node: any): ShelfItem | null {
       isVideo: node.item_type === 'video',
       explicit: isExplicit(node),
     }
-    return { title, subtitle, thumbnailUrl, videoId: payload.videoId, type: node.item_type === 'video' ? 'video' : 'song', song }
+    return { title, subtitle, thumbnailUrl, videoId, type: node.item_type === 'video' ? 'video' : 'song', song }
   }
   const browseId: string | undefined = payload.browseId ?? node.id
   if (!browseId) return null
