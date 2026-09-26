@@ -65,12 +65,20 @@ jobs:
           npm version "${TAG#v}" --no-git-tag-version --allow-same-version
       - run: npm run build
       - name: Package (${{ matrix.platform }})
+        shell: bash
         env:
-          # Signing is picked up automatically when these secrets exist; unsigned otherwise.
-          CSC_LINK: ${{ secrets.CSC_LINK }}
-          CSC_KEY_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
-          CSC_IDENTITY_AUTO_DISCOVERY: ${{ secrets.CSC_LINK != '' }}
-        run: npx electron-builder --${{ matrix.platform }} --publish never
+          SIGNING_CERT: ${{ secrets.CSC_LINK }}
+          SIGNING_CERT_PASSWORD: ${{ secrets.CSC_KEY_PASSWORD }}
+        run: |
+          # An unset secret arrives as an empty string, and electron-builder reads an
+          # empty CSC_LINK as a path ("<workspace> not a file"). Only export signing
+          # variables when a certificate actually exists; otherwise build unsigned.
+          if [ -n "$SIGNING_CERT" ]; then
+            export CSC_LINK="$SIGNING_CERT" CSC_KEY_PASSWORD="$SIGNING_CERT_PASSWORD"
+          else
+            export CSC_IDENTITY_AUTO_DISCOVERY=false
+          fi
+          npx electron-builder --${{ matrix.platform }} --publish never
       - uses: actions/upload-artifact@v4
         with:
           name: aurora-music-${{ matrix.platform }}
