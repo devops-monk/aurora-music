@@ -10,6 +10,10 @@ Built with Electron + React + TypeScript, so the interface renders identically o
 - Gapless playback, radio autoplay, shuffle/repeat, drag-to-reorder queue, volume normalisation
 - Word-synced lyrics (BetterLyrics TTML → LRCLIB → YouTube Music), click a line to seek
 - Sign in with Google for your library and likes (session encrypted with the OS keychain)
+- Crossfade (0–12 s) and a 7-band equaliser with 16 presets
+- Offline downloads and Local Music folders
+- Listen Together: synced listening parties (compatible with BitChord's party server)
+- Discord status, and Last.fm / ListenBrainz scrobbling
 - Media keys and OS now-playing integration (macOS Now Playing, Windows SMTC, Linux MPRIS)
 - Dark / light / system theme, reduce-animation option
 - Keyboard: `Space` play/pause · `←/→` seek 5s · `⌘/Ctrl+←/→` previous/next · `⌘/Ctrl+F` search · `⌘/Ctrl+L` lyrics · `Esc` close player
@@ -28,6 +32,11 @@ npm test             # unit tests
 npm run typecheck
 npm run build:mac    # or build:win / build:linux → release/<version>/
 ```
+
+## Services
+- **Website**: `site/`, published to https://aurora.devops-monk.com with `deploy/deploy-site.sh root@HOST`.
+- **Listen Together server**: BitChord's GPL Go party server, run behind nginx at https://party.devops-monk.com with `deploy/deploy.sh root@HOST ../BitChord/backend`. It is the app's built-in default (`.env`), and changeable in the app.
+- Optional build secrets: `LASTFM_API_KEY` / `LASTFM_SECRET` (Last.fm scrobbling) and `DISCORD_CLIENT_ID` (Discord status) as GitHub Actions secrets, or `MAIN_VITE_*` in `.env.local` for local builds.
 
 ## Releasing
 Push a tag and the pipeline builds on macOS, Windows and Linux runners, then publishes one GitHub Release with every installer:

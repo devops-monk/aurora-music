@@ -69,7 +69,6 @@ jobs:
           MAIN_VITE_LASTFM_API_KEY: ${{ secrets.LASTFM_API_KEY }}
           MAIN_VITE_LASTFM_SECRET: ${{ secrets.LASTFM_SECRET }}
           MAIN_VITE_DISCORD_CLIENT_ID: ${{ secrets.DISCORD_CLIENT_ID }}
-          MAIN_VITE_PARTY_SERVER: ${{ vars.PARTY_SERVER }}
       - name: Package (${{ matrix.platform }})
         shell: bash
         env:
