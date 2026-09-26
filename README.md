@@ -43,7 +43,7 @@ Push a tag and the pipeline builds on macOS, Windows and Linux runners, then pub
 ```sh
 npm version patch && git push --follow-tags
 ```
-Or run the **Build & Release** workflow manually with a version such as `v0.1.1`.
+Or run the **Build & Release** workflow manually with a version such as `v1.0.1`.
 
 ## Layout
 ```
