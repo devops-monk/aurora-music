@@ -165,6 +165,10 @@ function ReleaseBody({ page, songs, loadingMore }: { page: DetailPage; songs: So
           ))}
           {loadingMore && <RowsSkeleton count={4} />}
         </div>
+        {/* YouTube counts removed and private videos in a playlist's total but sends none of them. */}
+        {!isAlbum && !songs.length && !loadingMore && (
+          <MessageState message="No playable tracks here. Songs that were removed from YouTube or made private still count toward a playlist's total, but can't be played." />
+        )}
         {isAlbum && songs.length > 0 && <div className="detail-footer">{`${songs.length} songs, ${totalDuration(songs)}`}</div>}
         {page.description && <About title={isAlbum ? 'About' : 'Description'} text={page.description} />}
         {page.sections.map((shelf, i) => (
