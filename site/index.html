@@ -4,7 +4,7 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Aurora Music: every song, in its best light</title>
-  <meta name="description" content="A free, open-source YouTube Music player for macOS, Windows and Linux: word-synced lyrics with translation, animated cover art, crossfade, an equaliser, offline downloads, Replay and Listen Together." />
+  <meta name="description" content="A free, open-source YouTube Music player for macOS, Windows, Linux and Android: word-synced lyrics with translation, animated cover art, crossfade, an equaliser, offline downloads, Replay and Listen Together." />
   <meta name="theme-color" content="#3a2527" />
   <meta property="og:title" content="Aurora Music" />
   <meta property="og:description" content="The YouTube Music player your desktop deserves. Free, open source, no ads." />
@@ -58,7 +58,7 @@
           </a>
           <a class="btn-quiet" href="#install">Other platforms</a>
         </div>
-        <p class="fine"><span data-latest>v1.0.0</span> for macOS, Windows and Linux. No account needed.</p>
+        <p class="fine"><span data-latest>v1.0.0</span> for macOS, Windows, Linux and Android. No account needed.</p>
       </div>
       <figure class="hero-shot">
         <img src="/assets/shots/nowplaying.webp" alt="Aurora Music playing Anti-Hero by Taylor Swift, with the Midnights cover, progress bar and playback controls" width="1600" height="1025" fetchpriority="high" />
@@ -135,6 +135,7 @@
         <button role="tab" data-os="mac" aria-selected="true">macOS</button>
         <button role="tab" data-os="win" aria-selected="false">Windows</button>
         <button role="tab" data-os="linux" aria-selected="false">Linux</button>
+        <button role="tab" data-os="android" aria-selected="false">Android</button>
       </div>
 
       <ol class="steps" data-os-panel="mac">
@@ -151,6 +152,11 @@
         <li><h3>Pick a package</h3><p>The AppImage runs anywhere. There's also a .deb for Debian and Ubuntu, and an .rpm for Fedora and openSUSE.</p><a class="btn btn-play btn-small" data-asset="linux-x86_64.AppImage" href="#">Download AppImage</a></li>
         <li><h3>Make it runnable</h3><p><code>chmod +x Aurora-Music-*.AppImage</code>, or <code>sudo apt install ./Aurora-Music-*.deb</code>.</p></li>
         <li><h3>Press play</h3><p>Media keys work through MPRIS, so your desktop's player controls show the song too.</p></li>
+      </ol>
+      <ol class="steps" data-os-panel="android" hidden>
+        <li><h3>Download the APK</h3><p>For Android 7 and newer. Open this page on your phone, or send the file to it.</p><a class="btn btn-play btn-small" data-asset="android.apk" href="#">Download for Android</a></li>
+        <li><h3>Allow the install</h3><p>Android asks before installing apps from outside the Play Store. Allow it for your browser or file manager, just this once.</p></li>
+        <li><h3>Press play</h3><p>Music keeps playing with the screen off, with controls on the lock screen. Sign-in, downloads and the equaliser are still desktop-only.</p></li>
       </ol>
 
       <div class="releases">
