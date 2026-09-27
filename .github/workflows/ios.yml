@@ -1,0 +1,66 @@
+name: iOS
+
+# Builds the iPhone app on GitHub's macOS runners (Capacitor 8 needs Xcode 26),
+# runs the self-test build in an iPhone Simulator with screenshots, and
+# produces an unsigned .ipa for sideloading with AltStore or SideStore.
+# Tagged releases get the .ipa from release.yml; run this one by hand
+# (gh workflow run ios.yml) to test iPhone changes in the Simulator.
+
+on:
+  workflow_dispatch:
+
+jobs:
+  ios:
+    runs-on: macos-15
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - name: Use Xcode 26
+        run: |
+          ls -d /Applications/Xcode*.app
+          XCODE=$(ls -d /Applications/Xcode_26*.app | sort -V | tail -1)
+          sudo xcode-select -s "$XCODE"
+          xcodebuild -version
+      - run: npm ci
+      - name: Self-test build
+        env:
+          VITE_AURORA_SELFTEST: '1'
+          AURORA_SELFTEST: '1'
+        run: |
+          npm run build:mobile
+          npx cap sync ios
+      - name: Build for the Simulator
+        run: |
+          set -o pipefail
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Debug \
+            -sdk iphonesimulator -destination 'generic/platform=iOS Simulator' \
+            -derivedDataPath build/sim build | tail -25
+      - name: Run the self-test in the Simulator
+        run: scripts/ios-selftest.sh build/sim/Build/Products/Debug-iphonesimulator/App.app
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ios-selftest
+          path: selftest/
+      - name: Build the .ipa
+        if: always()
+        run: |
+          set -o pipefail
+          npm run build:mobile
+          npx cap sync ios
+          xcodebuild -project ios/App/App.xcodeproj -scheme App -configuration Release \
+            -sdk iphoneos -destination 'generic/platform=iOS' -derivedDataPath build/device \
+            CODE_SIGNING_ALLOWED=NO CODE_SIGNING_REQUIRED=NO CODE_SIGN_IDENTITY="" build | tail -15
+          mkdir -p ipa/Payload
+          cp -R build/device/Build/Products/Release-iphoneos/App.app ipa/Payload/
+          (cd ipa && zip -qr "../Aurora-Music-dev-ios.ipa" Payload)
+          ls -la Aurora-Music-dev-ios.ipa
+      - uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: aurora-music-ios
+          path: Aurora-Music-*-ios.ipa

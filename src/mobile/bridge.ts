@@ -1,7 +1,8 @@
+import { Capacitor } from '@capacitor/core'
 import type { AuroraApi, PartyView, Settings } from '@shared/api'
 import type { SearchFilter, Song } from '@shared/models'
 import * as ytm from '../main/ytm/client'
-import { resolveStream, streamInfo } from '../main/ytm/stream'
+import { resolveStream, setPreferredCodec, streamInfo } from '../main/ytm/stream'
 import { lyricsFor } from '../main/lyrics'
 import { translateLyrics } from '../main/translate'
 import { motionForAlbum, motionForSong } from '../main/canvas'
@@ -21,8 +22,10 @@ const IDLE_PARTY: PartyView = { status: 'idle', members: [], maxMembers: 5, host
 const unsupported = () => Promise.reject(new Error('Not available on Android yet'))
 const noop = () => () => {}
 
+if (Capacitor.getPlatform() === 'ios') setPreferredCodec('mp4a')
+
 export const bridge = {
-  platform: 'android',
+  platform: Capacitor.getPlatform(),
 
   home: () => ytm.home(),
   homeMore: () => ytm.homeMore(),

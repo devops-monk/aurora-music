@@ -122,8 +122,8 @@
     linux: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c-2.2 0-3.6 2-3.6 4.7 0 1.3.3 2.3.1 3.3-.3 1.4-2.6 3.6-3.2 6.1-.4 1.8.5 2.4 1.4 2.9-.1.8.4 1.7 1.6 2 1.5.4 2.6-.5 3.6-.5s2.1.9 3.6.5c1.2-.3 1.7-1.2 1.6-2 .9-.5 1.8-1.1 1.4-2.9-.6-2.5-2.9-4.7-3.2-6.1-.2-1 .1-2 .1-3.3C15.6 4 14.2 2 12 2Z"/></svg>',
   }
   if (os) {
-    // No iPhone build yet: its button leads to the iPhone install notes instead.
-    $$('[data-download-label]').forEach((el) => (el.textContent = os === 'ios' ? 'iPhone version coming soon' : `Download for ${OS_LABEL[os]}`))
+    // An .ipa can't install on its own, so iPhone's button leads to the setup steps.
+    $$('[data-download-label]').forEach((el) => (el.textContent = os === 'ios' ? 'Install on iPhone' : `Download for ${OS_LABEL[os]}`))
     $$('[data-os-icon]').forEach((el) => (el.innerHTML = OS_ICON[os === 'ios' ? 'mac' : os]))
     selectOs(os)
   }
@@ -143,6 +143,7 @@
     'win-portable.exe': (n) => /-win-portable\.exe$/i.test(n),
     'linux-x86_64.AppImage': (n) => /\.AppImage$/i.test(n),
     'android.apk': (n) => /-android\.apk$/i.test(n),
+    'ios.ipa': (n) => /-ios\.ipa$/i.test(n),
   }
   const ASSET_LABEL = [
     [/mac.*\.dmg$/i, 'macOS disk image'],
@@ -153,6 +154,7 @@
     [/\.deb$/i, 'Linux .deb'],
     [/\.rpm$/i, 'Linux .rpm'],
     [/-android\.apk$/i, 'Android APK'],
+    [/-ios\.ipa$/i, 'iPhone .ipa'],
   ]
   const fmtDate = (s) => new Date(s).toLocaleDateString(undefined, { month: 'long', day: 'numeric', year: 'numeric' })
   const esc = (s) => s.replace(/[&<>"]/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;' })[c])

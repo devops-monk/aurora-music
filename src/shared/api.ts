@@ -212,7 +212,8 @@ export interface UpNext {
 
 /** Everything the renderer can ask of the main process, exposed as `window.aurora`. */
 export interface AuroraApi {
-  platform: NodeJS.Platform
+  /** Node's platform on the desktop; "android" or "ios" in the phone builds. */
+  platform: NodeJS.Platform | 'ios'
   home(): Promise<HomeFeed>
   homeMore(): Promise<HomeShelf[]>
   explore(): Promise<ExplorePage>
