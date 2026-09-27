@@ -3,12 +3,11 @@ name: iOS
 # Builds the iPhone app on GitHub's macOS runners (Capacitor 8 needs Xcode 26),
 # runs the self-test build in an iPhone Simulator with screenshots, and
 # produces an unsigned .ipa for sideloading with AltStore or SideStore.
-# Tagged releases get the .ipa from release.yml; this workflow is for testing.
+# Tagged releases get the .ipa from release.yml; run this one by hand
+# (gh workflow run ios.yml) to test iPhone changes in the Simulator.
 
 on:
   workflow_dispatch:
-  push:
-    branches: [ios-app]
 
 jobs:
   ios:
