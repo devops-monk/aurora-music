@@ -8,7 +8,7 @@ import { useSettings } from '../store/settings'
 import { useUi } from '../store/ui'
 import { signIn, signOut } from '../lib/account'
 import { appLanguage, languageName, TRANSLATION_LANGUAGES } from '../lib/lang'
-import { IS_ANDROID } from '../lib/platform'
+import { IS_MOBILE } from '../lib/platform'
 
 /** `SettingsSheet.kt`, as a page: grouped inset lists in the iOS settings style. */
 export function SettingsScreen() {
@@ -74,7 +74,7 @@ export function SettingsScreen() {
             ]}
             onChange={(audioQuality) => s.update({ audioQuality })}
           />
-          {!IS_ANDROID && (
+          {!IS_MOBILE && (
             <Toggle
               title="Normalize volume"
               subtitle="Evens out loudness between tracks"
@@ -89,7 +89,7 @@ export function SettingsScreen() {
             onChange={(autoplay) => s.update({ autoplay })}
           />
           {/* Crossfade and the equaliser need Web Audio, which Android's direct streams can't feed. */}
-          {!IS_ANDROID && (
+          {!IS_MOBILE && (
           <div className="settings-row">
             <div className="settings-row-text">
               <div className="settings-row-title">Crossfade</div>
@@ -107,7 +107,7 @@ export function SettingsScreen() {
             <span className="settings-value">{s.crossfadeSeconds ? `${s.crossfadeSeconds}s` : 'Off'}</span>
           </div>
           )}
-          {!IS_ANDROID && (
+          {!IS_MOBILE && (
             <Row
               title="Equalizer"
               subtitle={s.eqEnabled ? s.eqPreset : 'Off'}
@@ -117,9 +117,9 @@ export function SettingsScreen() {
           )}
         </Group>
 
-        {!IS_ANDROID && <Scrobbling />}
+        {!IS_MOBILE && <Scrobbling />}
 
-        {!IS_ANDROID && <Discord />}
+        {!IS_MOBILE && <Discord />}
 
         <Group title="Lyrics" footer="Sources are tried in order; the first synced result wins. Translate from the lyrics view.">
           <div className="settings-row">

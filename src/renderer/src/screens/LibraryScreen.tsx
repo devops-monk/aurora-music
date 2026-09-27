@@ -9,7 +9,7 @@ import { DownloadIcon, FolderIcon } from '../components/Icons'
 import { useDownloads } from '../store/downloads'
 import { ChevronRightIcon } from '../components/Icons'
 import { monthLabel } from './ReplayScreen'
-import { IS_ANDROID } from '../lib/platform'
+import { IS_MOBILE } from '../lib/platform'
 
 /** `ReplayBanner` from LibraryScreen.kt: this month's minutes, opening Replay. */
 function ReplayBanner() {
@@ -104,7 +104,7 @@ export function LibraryScreen() {
     <PageScroll id="library">
       <h1 className="page-title">Library</h1>
       <ReplayBanner />
-      {!IS_ANDROID && <OnThisComputer />}
+      {!IS_MOBILE && <OnThisComputer />}
       {!accountLoaded ? null : !account ? (
         <MessageState
           message="Sign in to see your playlists, albums and artists from YouTube Music."

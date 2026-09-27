@@ -10,7 +10,8 @@ const config: CapacitorConfig = {
   webDir: 'out/mobile',
   // Debug builds otherwise log every native HTTP response in full; YouTube's
   // player responses are large enough that this slows playback start.
-  loggingBehavior: 'none',
+  // The iOS CI self-test reads its results from the native console.
+  loggingBehavior: process.env.AURORA_SELFTEST === '1' ? 'production' : 'none',
   android: {
     path: 'android',
     backgroundColor: '#000000',

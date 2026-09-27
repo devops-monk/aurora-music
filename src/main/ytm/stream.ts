@@ -27,12 +27,16 @@ const inflight = new Map<string, Promise<Resolved>>()
 /** URLs are good for ~6h; refresh well before that. */
 const URL_MARGIN_MS = 30 * 60_000
 
+/** Opus suits Chromium (desktop, Android); iOS's WebKit plays AAC reliably and Opus-in-WebM not everywhere. */
+let preferredCodec: 'opus' | 'mp4a' = 'opus'
+export const setPreferredCodec = (codec: 'opus' | 'mp4a') => (preferredCodec = codec)
+
 function pickFormat(formats: any[]): any | null {
   const audio = formats.filter((f) => f.has_audio && !f.has_video && (f.url || f.signature_cipher || f.cipher))
   if (!audio.length) return null
-  // Opus first, which Chromium plays natively and carries more per bit, then bitrate.
-  const opus = audio.filter((f) => String(f.mime_type).includes('opus'))
-  const pool = opus.length ? opus : audio
+  // The preferred codec first (Opus carries more per bit), then bitrate.
+  const preferred = audio.filter((f) => String(f.mime_type).includes(preferredCodec))
+  const pool = preferred.length ? preferred : audio
   const sorted = [...pool].sort((a, b) => b.bitrate - a.bitrate)
   return getSettings().audioQuality === 'low' ? sorted[sorted.length - 1] : sorted[0]
 }

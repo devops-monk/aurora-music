@@ -3,7 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import Hls from 'hls.js'
 import type { MotionArtwork } from '@shared/api'
 import { useSettings } from '../store/settings'
-import { IS_ANDROID } from '../lib/platform'
+import { IS_MOBILE } from '../lib/platform'
 
 /**
  * Apple Music motion artwork (BitChord's canvas), laid over a sleeve that is
@@ -44,11 +44,11 @@ function MotionVideo({ art, playing }: { art: MotionArtwork; playing: boolean })
       hls?.destroy()
       hls = null
       if (dead || i >= urls.length) return
-      // Android's WebView plays HLS itself, and hls.js can't fetch video
-      // segments through its native-HTTP fetch; the desktop's Chromium claims
+      // The phones' WebViews play HLS themselves, and hls.js can't fetch video
+      // segments through their native-HTTP fetch; the desktop's Chromium claims
       // native HLS but rejects these URLs, so it uses hls.js.
       const native = video.canPlayType('application/vnd.apple.mpegurl')
-      if (IS_ANDROID && native) {
+      if (IS_MOBILE && native) {
         video.onerror = () => load(i + 1)
         video.src = urls[i]
       } else if (Hls.isSupported()) {
