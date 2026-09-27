@@ -8,4 +8,5 @@ document.documentElement.classList.add('is-android')
 
 await import('../renderer/src/main')
 await import('./playback')
+await import('./navigation')
 warmUp()

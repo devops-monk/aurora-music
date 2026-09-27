@@ -105,9 +105,7 @@ export function LibraryScreen() {
       <h1 className="page-title">Library</h1>
       <ReplayBanner />
       {!IS_ANDROID && <OnThisComputer />}
-      {!accountLoaded ? null : !account && IS_ANDROID ? (
-        <MessageState message="Your YouTube Music playlists, albums and artists will appear here once sign-in comes to Android." />
-      ) : !account ? (
+      {!accountLoaded ? null : !account ? (
         <MessageState
           message="Sign in to see your playlists, albums and artists from YouTube Music."
           action="Sign in"

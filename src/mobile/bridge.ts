@@ -6,14 +6,15 @@ import { lyricsFor } from '../main/lyrics'
 import { translateLyrics } from '../main/translate'
 import { motionForAlbum, motionForSong } from '../main/canvas'
 import * as replayStore from '../main/replay'
-import { getSettings, loadQueue, saveQueue, setSettings } from '../main/store'
+import { getSettings, loadQueue, saveCookie, saveQueue, setSettings } from '../main/store'
 import { warmUpPoToken } from './potoken'
+import { SignIn } from './native'
 
 /**
  * `window.aurora` on Android: the desktop's ipc.ts handler table, calling the
  * same shared modules directly instead of over IPC. What needs the desktop
- * (sign-in window, downloads, local folders, Discord, scrobbler auth, Listen
- * Together sockets) answers "not here yet" rather than failing.
+ * (downloads, local folders, Discord, scrobbler auth, Listen Together
+ * sockets) answers "not here yet" rather than failing.
  */
 
 const IDLE_PARTY: PartyView = { status: 'idle', members: [], maxMembers: 5, hostOnlyControl: false, offsetMs: 0 } as PartyView
@@ -44,9 +45,19 @@ export const bridge = {
   library: () => ytm.library(),
   likedSongs: () => ytm.likedSongs(),
   like: (videoId: string, liked: boolean) => ytm.like(videoId, liked),
-  account: async () => null,
-  signIn: async () => null,
-  signOut: async () => undefined,
+  account: () => ytm.account(),
+  signIn: async () => {
+    const { cookie } = await SignIn.signIn()
+    if (!cookie) return null
+    saveCookie(cookie)
+    ytm.resetSession()
+    return ytm.account()
+  },
+  signOut: async () => {
+    saveCookie(null)
+    await SignIn.signOut()
+    ytm.resetSession()
+  },
 
   getSettings: async () => getSettings(),
   setSettings: async (patch: Partial<Settings>) => setSettings(patch),

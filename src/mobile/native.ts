@@ -35,5 +35,12 @@ export interface PlaybackPlugin {
   ): Promise<PluginListenerHandle>
 }
 
+/** Google's sign-in page in a native screen; resolves with the YouTube Music cookies, or null if cancelled. */
+export interface SignInPlugin {
+  signIn(): Promise<{ cookie: string | null }>
+  signOut(): Promise<void>
+}
+
 export const BotGuard = registerPlugin<BotGuardPlugin>('BotGuard')
+export const SignIn = registerPlugin<SignInPlugin>('SignIn')
 export const Playback = registerPlugin<PlaybackPlugin>('Playback')

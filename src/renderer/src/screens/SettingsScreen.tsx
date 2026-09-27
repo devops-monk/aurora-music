@@ -34,13 +34,6 @@ export function SettingsScreen() {
               </div>
               <Row title="Sign out" destructive onClick={signOut} />
             </>
-          ) : IS_ANDROID ? (
-            <div className="settings-row">
-              <div className="settings-row-text">
-                <div className="settings-row-title">Signed out</div>
-                <div className="settings-row-subtitle">Sign-in is coming to Android. Everything else works without it.</div>
-              </div>
-            </div>
           ) : (
             <Row title="Sign in to YouTube Music" subtitle="Library, likes and personalised mixes" onClick={signIn} chevron />
           )}
