@@ -1,0 +1,8 @@
+{
+  "extends": "./tsconfig.web.json",
+  "compilerOptions": {
+    "composite": false,
+    "types": ["vite/client", "node"]
+  },
+  "include": ["src/mobile/**/*", "src/renderer/src/**/*", "src/shared/**/*", "src/preload/*.d.ts", "capacitor.config.ts", "vite.mobile.config.ts"]
+}

@@ -11,6 +11,7 @@ import { QueuePane } from './QueuePane'
 import { ChevronDownIcon, MusicNoteIcon } from '../components/Icons'
 import { ExplicitBadge } from '../components/Common'
 import { MotionCover } from '../components/MotionCover'
+import { IS_ANDROID } from '../lib/platform'
 
 /** `LANDSCAPE_PLAYER_MIN_WIDTH`: narrower than this, the player takes its portrait shape. */
 const LANDSCAPE_MIN_WIDTH = 560
@@ -113,7 +114,7 @@ function PlayerBody() {
       {credits}
       <Scrubber />
       <Transport compact={h < 640} />
-      <VolumeRow />
+      {!IS_ANDROID && <VolumeRow />}
     </div>
   )
 

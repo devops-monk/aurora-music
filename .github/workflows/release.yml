@@ -4,8 +4,8 @@ name: Build & Release
 # (downloadable from the run's artifacts).
 # A `v*` tag (or a manual run with a version): the same, then one GitHub
 # Release with every installer attached: macOS dmg/zip (universal), Windows
-# setup + portable (x64/arm64), Linux AppImage/deb/rpm, plus the latest*.yml
-# files electron-updater reads.
+# setup + portable (x64/arm64), Linux AppImage/deb/rpm, the Android APK, plus
+# the latest*.yml files electron-updater reads.
 
 on:
   push:
@@ -98,8 +98,64 @@ jobs:
             release/*/*.blockmap
             release/*/latest*.yml
 
+  android:
+    needs: test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - name: Set version from tag
+        if: startsWith(github.ref, 'refs/tags/v') || inputs.version != ''
+        shell: bash
+        run: |
+          TAG="${{ inputs.version || github.ref_name }}"
+          echo "AURORA_VERSION=${TAG#v}" >> "$GITHUB_ENV"
+      - name: Signing key
+        shell: bash
+        env:
+          KEYSTORE_BASE64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+        run: |
+          # Every release must be signed with the same key, or Android refuses to
+          # install it over the previous one. Without the secret (forks, PRs from
+          # them) the job builds a debug APK instead.
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/aurora-release.jks"
+            echo "AURORA_KEYSTORE=$RUNNER_TEMP/aurora-release.jks" >> "$GITHUB_ENV"
+          fi
+      - name: Build APK
+        shell: bash
+        env:
+          AURORA_KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          AURORA_KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          AURORA_KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          npm run build:mobile
+          npx cap sync android
+          mkdir -p apk
+          VERSION="${AURORA_VERSION:-dev}"
+          if [ -n "$AURORA_KEYSTORE" ]; then
+            (cd android && ./gradlew assembleRelease --no-daemon)
+            cp android/app/build/outputs/apk/release/app-release.apk "apk/Aurora-Music-$VERSION-android.apk"
+          else
+            (cd android && ./gradlew assembleDebug --no-daemon)
+            cp android/app/build/outputs/apk/debug/app-debug.apk "apk/Aurora-Music-$VERSION-android-debug.apk"
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: aurora-music-android
+          if-no-files-found: error
+          path: apk/*.apk
+
   release:
-    needs: package
+    needs: [package, android]
     if: startsWith(github.ref, 'refs/tags/v') || inputs.version != ''
     runs-on: ubuntu-latest
     steps:

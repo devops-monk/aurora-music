@@ -3,6 +3,7 @@ import { useQuery } from '@tanstack/react-query'
 import Hls from 'hls.js'
 import type { MotionArtwork } from '@shared/api'
 import { useSettings } from '../store/settings'
+import { IS_ANDROID } from '../lib/platform'
 
 /**
  * Apple Music motion artwork (BitChord's canvas), laid over a sleeve that is
@@ -43,12 +44,19 @@ function MotionVideo({ art, playing }: { art: MotionArtwork; playing: boolean })
       hls?.destroy()
       hls = null
       if (dead || i >= urls.length) return
-      if (Hls.isSupported()) {
+      // Android's WebView plays HLS itself, and hls.js can't fetch video
+      // segments through its native-HTTP fetch; the desktop's Chromium claims
+      // native HLS but rejects these URLs, so it uses hls.js.
+      const native = video.canPlayType('application/vnd.apple.mpegurl')
+      if (IS_ANDROID && native) {
+        video.onerror = () => load(i + 1)
+        video.src = urls[i]
+      } else if (Hls.isSupported()) {
         hls = new Hls({ enableWorker: false, capLevelToPlayerSize: true, maxBufferLength: 10 })
         hls.on(Hls.Events.ERROR, (_e, data) => data.fatal && load(i + 1))
         hls.loadSource(urls[i])
         hls.attachMedia(video)
-      } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      } else if (native) {
         video.onerror = () => load(i + 1)
         video.src = urls[i]
       }
@@ -75,7 +83,9 @@ function MotionVideo({ art, playing }: { art: MotionArtwork; playing: boolean })
       loop
       playsInline
       autoPlay={playing}
-      onLoadedData={() => setShown(true)}
+      onLoadedData={(e) => e.currentTarget.videoWidth > 0 && setShown(true)}
+      // A clip that can't be decoded (no hardware decoder, say) leaves the still cover showing.
+      onError={() => setShown(false)}
       style={{ opacity: shown ? 1 : 0 }}
     />
   )

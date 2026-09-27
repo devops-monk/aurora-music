@@ -24,11 +24,18 @@ const RADIO_RUNWAY = 3
 /** Treat "previous" as "restart" past this point, like every music app. */
 const RESTART_THRESHOLD_MS = 3000
 
+/**
+ * Android plays googlevideo URLs directly: there is no aurora:// proxy to
+ * add CORS headers, so the elements can't feed Web Audio, and the equaliser
+ * and crossfade gains sit out. Volume and normalisation go on the element.
+ */
+const DIRECT = typeof window.aurora.streamSrc === 'function'
+
 const elements = [new Audio(), new Audio()]
 elements.forEach((el) => {
   el.preload = 'auto'
   // Web Audio only hears a media element whose source is CORS-clean.
-  el.crossOrigin = 'anonymous'
+  if (!DIRECT) el.crossOrigin = 'anonymous'
 })
 let active = 0
 let graph: AudioGraph | null = null
@@ -49,7 +56,8 @@ const spare = () => elements[1 - active]
 
 export const getPositionMs = () => cur().currentTime * 1000
 
-function ensureGraph(): AudioGraph {
+function ensureGraph(): AudioGraph | null {
+  if (DIRECT) return null
   if (!graph) {
     graph = new AudioGraph(elements)
     const s = useSettings.getState()
@@ -65,6 +73,10 @@ export const audioGraph = () => graph
 const trackLevel = (i: number) => (useSettings.getState().normalizeVolume ? normalization[i] : 1)
 
 function applyVolume() {
+  if (DIRECT) {
+    cur().volume = Math.min(1, Math.pow(usePlayer.getState().volume, 2) * trackLevel(active))
+    return
+  }
   if (!graph) return
   // A perceptual curve: linear slider positions are far too loud at the bottom.
   graph.setMaster(Math.pow(usePlayer.getState().volume, 2))
@@ -130,6 +142,14 @@ function load(song: Song, autoplay: boolean, startMs = 0) {
   } else {
     cur().pause()
     pendingSeekMs = startMs
+    if (DIRECT) {
+      directLoad(cur(), song.videoId, autoplay)
+      applyVolume()
+      loadStreamInfo(song.videoId)
+      prefetchNeighbours()
+      topUpRadio()
+      return
+    }
     cur().src = streamUrl(song.videoId)
     cur().load()
   }
@@ -146,6 +166,21 @@ function load(song: Song, autoplay: boolean, startMs = 0) {
   topUpRadio()
 }
 
+/** Android: resolve the googlevideo URL first, then load and (maybe) play it on [el]. */
+async function directLoad(el: HTMLAudioElement, videoId: string, autoplay: boolean) {
+  try {
+    const src = await window.aurora.streamSrc!(videoId)
+    if (loadedVideoId !== videoId || el !== cur()) return
+    el.src = src
+    el.load()
+    if (autoplay) await el.play()
+  } catch (e) {
+    const err = e as Error
+    if (err?.name !== 'AbortError' && loadedVideoId === videoId)
+      usePlayer.setState({ isPlaying: false, isLoading: false, error: String(err?.message ?? err) })
+  }
+}
+
 function prefetchNeighbours() {
   const { songs, index } = usePlayer.getState()
   const next = songs[index + 1]
@@ -157,6 +192,18 @@ function preloadSpare() {
   const next = repeat === 'one' ? null : songs[index + 1]
   if (!next || spareFor === next.videoId) return
   spareFor = next.videoId
+  if (DIRECT) {
+    const el = spare()
+    window.aurora
+      .streamSrc!(next.videoId)
+      .then((src) => {
+        if (spareFor !== next.videoId || el !== spare()) return
+        el.src = src
+        el.load()
+      })
+      .catch(() => (spareFor = null))
+    return
+  }
   spare().src = streamUrl(next.videoId)
   spare().load()
 }
@@ -257,7 +304,8 @@ function maybeStartCrossfade(el: HTMLMediaElement) {
 }
 
 function startCrossfade(song: Song) {
-  const g = ensureGraph()
+  // Only reached when maybeCrossfade saw a graph, so never on Android.
+  const g = ensureGraph()!
   const remaining = cur().duration - cur().currentTime
   const seconds = Math.max(0.5, Math.min(useSettings.getState().crossfadeSeconds, Number.isFinite(remaining) ? remaining : 1))
   const outgoing = active

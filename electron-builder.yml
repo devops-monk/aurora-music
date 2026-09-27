@@ -6,6 +6,7 @@ directories:
   buildResources: build
 files:
   - out/**
+  - '!out/mobile/**'
   - resources/**
   - build/icon.png
   - build/icons/**

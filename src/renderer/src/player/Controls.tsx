@@ -19,6 +19,7 @@ import {
 import { openSongMenu, toggleLike } from '../lib/actions'
 import { useUi } from '../store/ui'
 import { useParty, inParty } from '../store/party'
+import { IS_ANDROID } from '../lib/platform'
 
 /**
  * `ThinSlider` from PlayerControls.kt: a hairline track that thickens under
@@ -198,16 +199,18 @@ export function PlayerActionRow() {
       <CircleGlyph label="Queue" active={pane === 'queue'} onClick={() => usePlayer.getState().setPane('queue')}>
         <QueueIcon size={19} />
       </CircleGlyph>
-      <CircleGlyph
-        label="Listen Together"
-        active={partying}
-        onClick={() => {
-          usePlayer.getState().closeNowPlaying()
-          useUi.getState().push({ kind: 'party' })
-        }}
-      >
-        <PeopleIcon size={19} />
-      </CircleGlyph>
+      {!IS_ANDROID && (
+        <CircleGlyph
+          label="Listen Together"
+          active={partying}
+          onClick={() => {
+            usePlayer.getState().closeNowPlaying()
+            useUi.getState().push({ kind: 'party' })
+          }}
+        >
+          <PeopleIcon size={19} />
+        </CircleGlyph>
+      )}
       <CircleGlyph
         label="More"
         onClick={(e) => {

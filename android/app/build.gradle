@@ -1,0 +1,77 @@
+apply plugin: 'com.android.application'
+
+/** "1.2.3" → 10203: a versionCode that rises with every release. */
+static int auroraVersionCode(String version) {
+    def parts = version.tokenize('.-')
+    def num = { int i -> parts.size() > i && parts[i].isInteger() ? parts[i].toInteger() : 0 }
+    return Math.max(1, num(0) * 10000 + num(1) * 100 + num(2))
+}
+
+android {
+    namespace = "com.devopsmonk.aurora"
+    compileSdk = rootProject.ext.compileSdkVersion
+    defaultConfig {
+        applicationId "com.devopsmonk.aurora"
+        minSdkVersion rootProject.ext.minSdkVersion
+        targetSdkVersion rootProject.ext.targetSdkVersion
+        // CI passes the release tag's version; local builds stay at 0.0.0.
+        versionName System.getenv("AURORA_VERSION") ?: "0.0.0"
+        versionCode auroraVersionCode(System.getenv("AURORA_VERSION") ?: "0.0.0")
+        testInstrumentationRunner "androidx.test.runner.AndroidJUnitRunner"
+        aaptOptions {
+             // Files and dirs to omit from the packaged assets dir, modified to accommodate modern web apps.
+             // Default: https://android.googlesource.com/platform/frameworks/base/+/282e181b58cf72b6ca770dc7ca5f91f135444502/tools/aapt/AaptAssets.cpp#61
+            ignoreAssetsPattern = '!.svn:!.git:!.ds_store:!*.scc:.*:!CVS:!thumbs.db:!picasa.ini:!*~'
+        }
+    }
+    // Release signing comes from the environment (GitHub secrets in CI), never
+    // from files in the repo. Without it, a release build is left unsigned.
+    signingConfigs {
+        release {
+            def keystore = System.getenv("AURORA_KEYSTORE")
+            if (keystore) {
+                storeFile file(keystore)
+                storePassword System.getenv("AURORA_KEYSTORE_PASSWORD")
+                keyAlias System.getenv("AURORA_KEY_ALIAS")
+                keyPassword System.getenv("AURORA_KEY_PASSWORD")
+            }
+        }
+    }
+    buildTypes {
+        release {
+            if (System.getenv("AURORA_KEYSTORE")) signingConfig signingConfigs.release
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+        }
+    }
+}
+
+repositories {
+    flatDir{
+        dirs '../capacitor-cordova-android-plugins/src/main/libs', 'libs'
+    }
+}
+
+dependencies {
+    implementation fileTree(include: ['*.jar'], dir: 'libs')
+    implementation "androidx.appcompat:appcompat:$androidxAppCompatVersion"
+    implementation "androidx.coordinatorlayout:coordinatorlayout:$androidxCoordinatorLayoutVersion"
+    implementation "androidx.core:core-splashscreen:$coreSplashScreenVersion"
+    implementation "androidx.media:media:1.7.1"
+    implementation project(':capacitor-android')
+    testImplementation "junit:junit:$junitVersion"
+    androidTestImplementation "androidx.test.ext:junit:$androidxJunitVersion"
+    androidTestImplementation "androidx.test.espresso:espresso-core:$androidxEspressoCoreVersion"
+    implementation project(':capacitor-cordova-android-plugins')
+}
+
+apply from: 'capacitor.build.gradle'
+
+try {
+    def servicesJSON = file('google-services.json')
+    if (servicesJSON.text) {
+        apply plugin: 'com.google.gms.google-services'
+    }
+} catch(Exception e) {
+    logger.info("google-services.json not found, google-services plugin not applied. Push Notifications won't work")
+}

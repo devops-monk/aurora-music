@@ -60,11 +60,21 @@ async function resolveWith(videoId: string, client: 'YTMUSIC' | 'IOS' | 'MWEB'):
   }
 }
 
+/** One client's attempt; past this, move on to the next client rather than leave the player spinning. */
+const CLIENT_TIMEOUT_MS = 25_000
+
+function attempt(videoId: string, client: 'YTMUSIC' | 'IOS' | 'MWEB'): Promise<Resolved> {
+  return Promise.race([
+    resolveWith(videoId, client),
+    new Promise<Resolved>((_, reject) => setTimeout(() => reject(new Error(`${client} timed out`)), CLIENT_TIMEOUT_MS)),
+  ])
+}
+
 async function resolveFresh(videoId: string): Promise<Resolved> {
   let lastError: unknown
   for (const client of ['YTMUSIC', 'IOS', 'MWEB'] as const) {
     try {
-      return await resolveWith(videoId, client)
+      return await attempt(videoId, client)
     } catch (e) {
       lastError = e
       console.warn(`[stream] ${client} failed for ${videoId}:`, (e as Error).message)

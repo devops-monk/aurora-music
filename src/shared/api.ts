@@ -228,6 +228,8 @@ export interface AuroraApi {
   prefetch(videoId: string): Promise<void>
   /** Codec, bitrate and loudness of the stream a track resolves to. */
   streamInfo(videoId: string): Promise<StreamInfo>
+  /** Android only: the direct googlevideo URL (the desktop plays aurora://stream instead). */
+  streamSrc?(videoId: string): Promise<string>
   library(): Promise<LibraryPage>
   likedSongs(): Promise<Song[]>
   like(videoId: string, liked: boolean): Promise<void>

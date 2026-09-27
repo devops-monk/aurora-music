@@ -131,7 +131,8 @@ const TOKEN_RETRY_MS = 30 * 60_000
 
 function jwtPart(jwt: string, i: number): any {
   try {
-    return JSON.parse(Buffer.from(jwt.split('.')[i], 'base64url').toString())
+    // Plain base64 rather than 'base64url', which the Android build's Buffer polyfill lacks.
+    return JSON.parse(Buffer.from(jwt.split('.')[i].replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString())
   } catch {
     return null
   }

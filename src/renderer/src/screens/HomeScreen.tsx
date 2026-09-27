@@ -6,6 +6,7 @@ import { PageScroll } from '../components/PageScroll'
 import { useUi } from '../store/ui'
 import { signIn } from '../lib/account'
 import { MusicNoteIcon } from '../components/Icons'
+import { IS_ANDROID } from '../lib/platform'
 
 /** `HomeScreen.kt`: the large title, a sign-in banner when signed out, the hero shelf, then the feed. */
 export function HomeScreen() {
@@ -28,7 +29,7 @@ export function HomeScreen() {
       onEndReached={() => feed.hasNextPage && !feed.isFetchingNextPage && feed.fetchNextPage()}
     >
       <h1 className="page-title">Home</h1>
-      {accountLoaded && !account && <SignInBanner />}
+      {accountLoaded && !account && !IS_ANDROID && <SignInBanner />}
       {feed.isPending ? (
         <FeedSkeleton />
       ) : feed.isError && !shelves.length ? (

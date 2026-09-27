@@ -8,6 +8,7 @@ import { useSettings } from '../store/settings'
 import { useUi } from '../store/ui'
 import { signIn, signOut } from '../lib/account'
 import { appLanguage, languageName, TRANSLATION_LANGUAGES } from '../lib/lang'
+import { IS_ANDROID } from '../lib/platform'
 
 /** `SettingsSheet.kt`, as a page: grouped inset lists in the iOS settings style. */
 export function SettingsScreen() {
@@ -33,6 +34,13 @@ export function SettingsScreen() {
               </div>
               <Row title="Sign out" destructive onClick={signOut} />
             </>
+          ) : IS_ANDROID ? (
+            <div className="settings-row">
+              <div className="settings-row-text">
+                <div className="settings-row-title">Signed out</div>
+                <div className="settings-row-subtitle">Sign-in is coming to Android. Everything else works without it.</div>
+              </div>
+            </div>
           ) : (
             <Row title="Sign in to YouTube Music" subtitle="Library, likes and personalised mixes" onClick={signIn} chevron />
           )}
@@ -73,18 +81,22 @@ export function SettingsScreen() {
             ]}
             onChange={(audioQuality) => s.update({ audioQuality })}
           />
-          <Toggle
-            title="Normalize volume"
-            subtitle="Evens out loudness between tracks"
-            value={s.normalizeVolume}
-            onChange={(normalizeVolume) => s.update({ normalizeVolume })}
-          />
+          {!IS_ANDROID && (
+            <Toggle
+              title="Normalize volume"
+              subtitle="Evens out loudness between tracks"
+              value={s.normalizeVolume}
+              onChange={(normalizeVolume) => s.update({ normalizeVolume })}
+            />
+          )}
           <Toggle
             title="Autoplay"
             subtitle="Keep playing similar music when the queue ends"
             value={s.autoplay}
             onChange={(autoplay) => s.update({ autoplay })}
           />
+          {/* Crossfade and the equaliser need Web Audio, which Android's direct streams can't feed. */}
+          {!IS_ANDROID && (
           <div className="settings-row">
             <div className="settings-row-text">
               <div className="settings-row-title">Crossfade</div>
@@ -101,17 +113,20 @@ export function SettingsScreen() {
             />
             <span className="settings-value">{s.crossfadeSeconds ? `${s.crossfadeSeconds}s` : 'Off'}</span>
           </div>
-          <Row
-            title="Equalizer"
-            subtitle={s.eqEnabled ? s.eqPreset : 'Off'}
-            chevron
-            onClick={() => useUi.getState().push({ kind: 'equalizer' })}
-          />
+          )}
+          {!IS_ANDROID && (
+            <Row
+              title="Equalizer"
+              subtitle={s.eqEnabled ? s.eqPreset : 'Off'}
+              chevron
+              onClick={() => useUi.getState().push({ kind: 'equalizer' })}
+            />
+          )}
         </Group>
 
-        <Scrobbling />
+        {!IS_ANDROID && <Scrobbling />}
 
-        <Discord />
+        {!IS_ANDROID && <Discord />}
 
         <Group title="Lyrics" footer="Sources are tried in order; the first synced result wins. Translate from the lyrics view.">
           <div className="settings-row">
