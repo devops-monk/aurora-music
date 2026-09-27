@@ -67,6 +67,21 @@ async function run() {
     }
   })
 
+  // YouTube answers "confirm you're not a bot" to CI's data-centre addresses,
+  // so the WebView's own playback is also checked with an AAC song preview
+  // from Apple's public search API: does it play, and keep playing in the background?
+  let probe: HTMLAudioElement | null = null
+  await step('audio-probe', async () => {
+    const res = await fetch('https://itunes.apple.com/search?term=anti-hero%20taylor%20swift&entity=song&limit=1')
+    const url: string | undefined = (await res.json()).results?.[0]?.previewUrl
+    if (!url) throw new Error('no preview')
+    probe = new Audio(url)
+    probe.loop = true
+    await probe.play()
+    await wait(6000)
+    return { currentTime: +probe.currentTime.toFixed(1), paused: probe.paused }
+  })
+
   // Screens for CI's screenshots: Now Playing at 60 s, lyrics at 75 s.
   await at(55)
   usePlayer.getState().openNowPlaying()
@@ -78,7 +93,13 @@ async function run() {
   // Keep reporting the position; CI sends the app to the background meanwhile.
   for (let i = 0; i < 24; i++) {
     await wait(5000)
-    log('position', { positionMs: Math.round(getPositionMs()), visibility: document.visibilityState, isPlaying: usePlayer.getState().isPlaying })
+    const p = probe as HTMLAudioElement | null
+    log('position', {
+      positionMs: Math.round(getPositionMs()),
+      visibility: document.visibilityState,
+      isPlaying: usePlayer.getState().isPlaying,
+      probe: p ? { t: +p.currentTime.toFixed(1), paused: p.paused } : null,
+    })
   }
   log('done', { ok: true })
 }
