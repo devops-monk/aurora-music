@@ -110,9 +110,11 @@
 
   // ── Which OS is this visitor on? ──────────────────────────────────────
   const ua = navigator.userAgent
-  // Android before Linux: phones report both.
-  const os = /Android/.test(ua) ? 'android' : /Mac/.test(ua) ? 'mac' : /Win/.test(ua) ? 'win' : /Linux|X11/.test(ua) ? 'linux' : null
-  const OS_LABEL = { mac: 'macOS', win: 'Windows', linux: 'Linux', android: 'Android' }
+  // Android before Linux, and iPhone/iPad before Mac: each reports both.
+  // iPadOS claims to be a Mac outright; its touch screen gives it away.
+  const ios = /iPhone|iPad|iPod/.test(ua) || (/Mac/.test(ua) && navigator.maxTouchPoints > 1)
+  const os = /Android/.test(ua) ? 'android' : ios ? 'ios' : /Mac/.test(ua) ? 'mac' : /Win/.test(ua) ? 'win' : /Linux|X11/.test(ua) ? 'linux' : null
+  const OS_LABEL = { mac: 'macOS', win: 'Windows', linux: 'Linux', android: 'Android', ios: 'iPhone' }
   const OS_ICON = {
     mac: '<svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M16.37 12.94c-.02-2.23 1.82-3.3 1.9-3.35-1.04-1.52-2.66-1.73-3.23-1.75-1.37-.14-2.68.81-3.38.81-.7 0-1.77-.79-2.91-.77-1.5.02-2.88.87-3.65 2.21-1.56 2.7-.4 6.7 1.12 8.89.74 1.07 1.62 2.27 2.78 2.23 1.12-.05 1.54-.72 2.89-.72 1.35 0 1.73.72 2.91.7 1.2-.02 1.96-1.09 2.7-2.16.85-1.24 1.2-2.44 1.22-2.5-.03-.01-2.33-.9-2.35-3.59ZM14.15 6.4c.61-.75 1.03-1.78.92-2.81-.89.04-1.96.59-2.6 1.33-.57.66-1.07 1.71-.94 2.72.99.08 2-.5 2.62-1.24Z"/></svg>',
     win: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M3 5.1 10.4 4v7.2H3V5.1Zm0 13.8 7.4 1.1v-7.1H3v6Zm8.2 1.2L21 21.5V13h-9.8v7.1Zm0-16.2V11H21V2.5l-9.8 1.4Z"/></svg>',
@@ -120,8 +122,9 @@
     linux: '<svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor" aria-hidden="true"><path d="M12 2c-2.2 0-3.6 2-3.6 4.7 0 1.3.3 2.3.1 3.3-.3 1.4-2.6 3.6-3.2 6.1-.4 1.8.5 2.4 1.4 2.9-.1.8.4 1.7 1.6 2 1.5.4 2.6-.5 3.6-.5s2.1.9 3.6.5c1.2-.3 1.7-1.2 1.6-2 .9-.5 1.8-1.1 1.4-2.9-.6-2.5-2.9-4.7-3.2-6.1-.2-1 .1-2 .1-3.3C15.6 4 14.2 2 12 2Z"/></svg>',
   }
   if (os) {
-    $$('[data-download-label]').forEach((el) => (el.textContent = `Download for ${OS_LABEL[os]}`))
-    $$('[data-os-icon]').forEach((el) => (el.innerHTML = OS_ICON[os]))
+    // No iPhone build yet: its button leads to the iPhone install notes instead.
+    $$('[data-download-label]').forEach((el) => (el.textContent = os === 'ios' ? 'iPhone version coming soon' : `Download for ${OS_LABEL[os]}`))
+    $$('[data-os-icon]').forEach((el) => (el.innerHTML = OS_ICON[os === 'ios' ? 'mac' : os]))
     selectOs(os)
   }
 
@@ -203,7 +206,7 @@
         const found = assets.find((x) => ASSET_MATCH[a.dataset.asset]?.(x.name))
         if (found) a.href = found.browser_download_url
       })
-      const primary = os && assets.find((x) => ASSET_MATCH[{ mac: 'mac-universal.dmg', win: 'win-x64.exe', linux: 'linux-x86_64.AppImage', android: 'android.apk' }[os]](x.name))
+      const primary = os && os !== 'ios' && assets.find((x) => ASSET_MATCH[{ mac: 'mac-universal.dmg', win: 'win-x64.exe', linux: 'linux-x86_64.AppImage', android: 'android.apk' }[os]](x.name))
       if (primary) $$('[data-download]').forEach((a) => (a.href = primary.browser_download_url))
     })
     .catch(() => undefined)
