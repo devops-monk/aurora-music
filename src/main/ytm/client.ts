@@ -363,10 +363,17 @@ export async function likedSongs(): Promise<Song[]> {
   return (await browse('VLLM')).songs
 }
 
+/**
+ * youtubei.js's interact.like/removeRating send `target: videoId`, which
+ * YouTube now rejects with 400 ("Invalid value at 'target'... LikeTarget");
+ * the target has to be an object. So the request is made here directly.
+ */
 export async function like(videoId: string, liked: boolean) {
   const client = await yt()
-  if (liked) await client.interact.like(videoId)
-  else await client.interact.removeRating(videoId)
+  await client.actions.execute(liked ? '/like/like' : '/like/removelike', {
+    target: { videoId },
+    client: 'YTMUSIC',
+  })
 }
 
 export async function account(): Promise<Account | null> {
